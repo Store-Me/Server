@@ -78,7 +78,7 @@ jobs:
               --log-driver=awslogs \
               --log-opt awslogs-region=ap-northeast-2 \
               --log-opt awslogs-group=storeme-docker-log \
-              --log-opt awslogs-stream=dodal-docker-backend \
+              --log-opt awslogs-stream=storeme-docker-backend \
               -p 80:8080 \
               --name ${{ secrets.CONTAINER_NAME }} \
               ${{ secrets.DOCKER_USERNAME }}/store-me:${{ github.sha }}
