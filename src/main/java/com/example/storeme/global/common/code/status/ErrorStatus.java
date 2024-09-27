@@ -38,7 +38,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // JWT Error
     _JWT_IS_NOT_EXIST(HttpStatus.UNAUTHORIZED, "JWT_IS_NOT_EXIST", "Authorization 헤더에 JWT 정보가 존재하지 않습니다."),
-    _JWT_IS_NOT_VALID(HttpStatus.UNAUTHORIZED, "JWT_IS_NOT_VALID", "Access Token 이 유효하지 않습니다."),
+    _JWT_ACCESS_TOKEN_IS_NOT_VALID(HttpStatus.UNAUTHORIZED, "JWT_ACCESS_TOKEN_IS_NOT_VALID", "Access Token 이 유효하지 않습니다."),
     _JWT_REFRESH_TOKEN_IS_NOT_VALID(HttpStatus.UNAUTHORIZED, "JWT_REFRESH_TOKEN_IS_NOT_VALID",
             "Refresh Token 이 유효하지 않습니다."),
     _JWT_ACCESS_TOKEN_IS_VALID(HttpStatus.UNAUTHORIZED, "JWT_ACCESS_TOKEN_IS_VALID", "Access Token 이 유효합니다."),
@@ -56,7 +56,8 @@ public enum ErrorStatus implements BaseErrorCode {
     _AUTH_CODE_ALREADY_EXIT(HttpStatus.BAD_REQUEST, "AUTH_CODE_ALREADY_EXIST_401", "이미 인증 코드가 존재합니다."),
     _AUTH_CODE_NOT_EXIST(HttpStatus.BAD_REQUEST, "AUTH_CODE_NOT_EXIST_401", "인증 코드가 존재하지 않습니다."),
     _AUTH_CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "AUTH_CODE_NOT_MATCH_401", "인증 코드가 일치하지 않습니다."),
-    _AUTH_SHOULD_BE_KAKAO(HttpStatus.BAD_REQUEST, "AUTH_SHOULD_BE_KAKAO_401", "해당 회원은 카카오 로그인 회원입니다.");
+    _AUTH_SHOULD_BE_KAKAO(HttpStatus.BAD_REQUEST, "AUTH_SHOULD_BE_KAKAO_401", "해당 회원은 카카오 로그인 회원입니다."),
+    _ROLE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "ROLE_TYPE_NOT_FOUND_401", "해당 Role Type이 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
@@ -79,5 +80,15 @@ public enum ErrorStatus implements BaseErrorCode {
                 .code(this.code)
                 .message(this.message)
                 .build();
+    }
+
+    @Override
+    public String getCode(){
+        return code;
+    }
+
+    @Override
+    public String getErrorMsg(){
+        return message;
     }
 }
