@@ -61,7 +61,7 @@ public class SecurityConfig {
                                 "/feed/user/public",
                                 "code/*",
                                 "follow/follower", "follow/followed",
-                                "/notice/**").permitAll()
+                                "/notice/**", "/").permitAll()
                         .requestMatchers("/userId/check","/mail").permitAll()
                         .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, "/notice/{noticeId}").hasRole("ADMIN")
