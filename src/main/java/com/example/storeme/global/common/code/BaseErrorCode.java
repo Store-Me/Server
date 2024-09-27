@@ -6,4 +6,7 @@ public interface BaseErrorCode {
     public ResponseDto.ErrorReasonDto getReason();
 
     public ResponseDto.ErrorReasonDto getReasonHttpStatus();
+
+    public String getCode();
+    public String getErrorMsg();
 }
