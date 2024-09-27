@@ -1,6 +1,7 @@
 package com.example.storeme.global.common.response;
 
 import com.example.storeme.global.common.code.BaseCode;
+import com.example.storeme.global.common.code.BaseErrorCode;
 import com.example.storeme.global.common.code.status.SuccessStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -33,6 +34,10 @@ public class ResponseDto<T> {
     }
 
     // 실패한 경우
+    public static <T> ResponseDto<T> onFailure(BaseErrorCode code){
+        return new ResponseDto<>(false, code.getCode(), code.getErrorMsg(), null);
+    }
+
     public static <T> ResponseDto<T> onFailure(String code, String message, T result){
         return new ResponseDto<>(false, code, message, result);
     }
