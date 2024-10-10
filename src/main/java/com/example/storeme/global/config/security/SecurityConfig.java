@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .logout(LogoutConfigurer::disable)
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST,"/user", "/login", "/logout").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/user", "/login", "/logout", "/files").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user",
                                 "/comment/{feedId}/public",
                                 "/feed/{feedId}/public", "/feed/list/public","/feed/search/public",
