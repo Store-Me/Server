@@ -23,6 +23,10 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	springCloudAwsVersion = '3.1.1'
+}
+
 dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
@@ -49,6 +53,10 @@ dependencies {
 
 	//oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+	//Spring Cloud AWS 라이브러리
+	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 }
 
 tasks.named('test') {
