@@ -1,12 +1,18 @@
 package com.example.storeme.global.common.code;
 
-import com.example.storeme.global.common.response.ResponseDto;
+import com.example.storeme.global.common.dto.ResponseDto;
+import org.springframework.http.HttpStatus;
 
+/**
+ * 예외 응답 코드를 관리하는 인터페이스
+ */
 public interface BaseErrorCode {
-    public ResponseDto.ErrorReasonDto getReason();
 
-    public ResponseDto.ErrorReasonDto getReasonHttpStatus();
+    ResponseDto.ErrorReasonDto getReason();
 
-    public String getCode();
-    public String getErrorMsg();
+    HttpStatus getHttpStatus();
+
+    String getCode();
+
+    String getErrorMsg();
 }
