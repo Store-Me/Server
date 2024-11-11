@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**")
                 .requestMatchers("/swagger","/v3/**")
                 .requestMatchers("/error/**")
-                .requestMatchers(HttpMethod.GET, "/health");
+                .requestMatchers(HttpMethod.GET, "/");
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -54,18 +54,8 @@ public class SecurityConfig {
                 .logout(LogoutConfigurer::disable)
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST,"/user", "/login", "/logout", "/files").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user",
-                                "/comment/{feedId}/public",
-                                "/feed/{feedId}/public", "/feed/list/public","/feed/search/public",
-                                "/feed/user/public",
-                                "code/*",
-                                "follow/follower", "follow/followed",
-                                "/notice/**", "/").permitAll()
-                        .requestMatchers("/userId/check","/mail").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/notice").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/notice/{noticeId}").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/notice/{noticeId}").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/signup/**", "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/verification/**").permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling((exceptionHandlingConfigurer)->
