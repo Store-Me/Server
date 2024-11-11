@@ -1,7 +1,7 @@
 package com.example.storeme.global.filter;
 
 import com.example.storeme.global.common.code.status.ErrorStatus;
-import com.example.storeme.global.common.response.ResponseDto;
+import com.example.storeme.global.common.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
