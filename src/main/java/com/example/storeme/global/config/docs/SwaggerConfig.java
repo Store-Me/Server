@@ -54,17 +54,17 @@ public class SwaggerConfig {
     }
     private SecurityScheme getJwtSecurityScheme() {
         return new SecurityScheme()
-                .name(jwtProperties.getAccessHeader())
-                .scheme(jwtProperties.getBearer())
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
                 .bearerFormat("JWT")
-                .type(SecurityScheme.Type.APIKEY)
-                .in(SecurityScheme.In.HEADER);
+                .in(SecurityScheme.In.HEADER)
+                .name(jwtProperties.getAccessHeader());
     }
 
     private SecurityScheme getJwtRefreshSecurityScheme() {
         return new SecurityScheme()
-                .name(jwtProperties.getRefreshHeader())
                 .type(SecurityScheme.Type.APIKEY)
-                .in(SecurityScheme.In.HEADER);
+                .in(SecurityScheme.In.HEADER)
+                .name(jwtProperties.getRefreshHeader());
     }
 }
