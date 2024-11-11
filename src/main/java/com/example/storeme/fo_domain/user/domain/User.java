@@ -1,45 +1,47 @@
 package com.example.storeme.fo_domain.user.domain;
 
-import com.example.storeme.global.common.entity.BaseEntity;
-import com.example.storeme.global.constant.RoleType;
+import com.example.storeme.fo_domain.user.constant.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-@Getter
 @Entity(name = "users")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class User extends BaseEntity implements UserDetails {
+@Getter
+@Setter
+public class User{
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "account_id", length = 20, unique = true)
+    private String accountId;
+
+    @Column(name = "kakao_id", length = 20, unique = true)
+    private String kakaoId;
+
+    @Column(name = "password", length = 60)
+    private String password;
+
+    @Column(name = "phone_number", nullable = false, length = 13, unique = true)
+    private String phoneNumber;
+
+    @Column(name = "nickname", nullable = false, length = 30)
+    private String nickname;
+
+    @Column(name = "profile_image_url", nullable = false, length = 2048)
+    private String profileImageUrl;
+
+    @Column(name = "privacy_consent", nullable = false)
+    private Boolean privacyConsent;
+
+    @Column(name = "marketing_consent", nullable = false)
+    private Boolean marketingConsent;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "usr_role", nullable = false)
+    @Column(name = "role_type", nullable = false, length = 20)
     private RoleType roleType;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(roleType.name()));
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return String.valueOf(id);
-    }
 
 }
