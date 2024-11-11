@@ -1,79 +1,61 @@
 package com.example.storeme.global.common.code.status;
 
 import com.example.storeme.global.common.code.BaseErrorCode;
-import com.example.storeme.global.common.response.ResponseDto;
+import com.example.storeme.global.common.dto.ResponseDto;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+/**
+ * 에러 응답 코드를 관리하는 Enum 클래스
+ */
 @Getter
 @RequiredArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
-    /*
-        ErrorCode는 다음과 같은 형식으로 작성합니다.
-
-        1. Success 및 Common Error
-            HTTP_STATUS: HTTP_STATUS 는 HttpStatus Enum 을 참고하여 작성합니다.
-                ex) _OK, _BAD_REQUEST, _UNAUTHORIZED, _FORBIDDEN, _METHOD_NOT_ALLOWED, _INTERNAL_SERVER_ERROR
-            CODE: [CATEGORY]_[HTTP_STATUS_CODE]
-                ex) SUCCESS_200, COMMON_400, COMMON_401, COMMON_403, COMMON_405, COMMON_500
-
-        2. Other Error
-            HTTP_STATUS: 에러의 상황을 잘 들어내는 HttpStatus 를 작성합니다.
-                ex) USER_NOT_FOUND, USER_ALREADY_EXISTS
-            CODE: [CATEGORY]_[HTTP_STATUS_CODE]_[ERROR_CODE]의 형식으로 작성합니다.
-                ex) BAD_REQUEST -> USER_400_001,
-                    NOT_FOUND -> USER_404_001,
-                    ALREADY_EXISTS -> USER_409_001
-     */
 
     // Common Error & Global Error
-    _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON_400", "잘못된 요청입니다."),
-    _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTHENTICATION_401", "인증 과정에서 오류가 발생했습니다."),
-    _FORBIDDEN(HttpStatus.FORBIDDEN, "AUTHORIZATION_403", "금지된 요청입니다."),
-    _METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "COMMON_405", "지원하지 않는 Http Method 입니다."),
-    _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON_500", "서버 에러가 발생했습니다."),
-    _METHOD_ARGUMENT_ERROR(HttpStatus.BAD_REQUEST, "METHOD_ARGUMENT_ERROR",
-            "올바르지 않은 클라이언트 요청값입니다."), // controller 에서 받은 요청 DTO 유효성 검증
+    _BAD_REQUEST(HttpStatus.BAD_REQUEST, "G400", "잘못된 요청입니다."),
+    _NOT_FOUND(HttpStatus.NOT_FOUND, "G402", "데이터를 찾지 못했습니다."),
+    _FORBIDDEN(HttpStatus.FORBIDDEN, "G403", "해당 요청에 대한 권한이 없습니다."),
+    _METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "G404", "지원하지 않는 Http Method 입니다."),
+    _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G500", "서버 에러가 발생했습니다."),
+
+    // Validation Error
+    _VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "V400", "요청 필드에 대한 검증 예외가 발생했습니다."),
 
     // JWT Error
-    _JWT_IS_NOT_EXIST(HttpStatus.UNAUTHORIZED, "JWT_IS_NOT_EXIST", "Authorization 헤더에 JWT 정보가 존재하지 않습니다."),
-    _JWT_ACCESS_TOKEN_IS_NOT_VALID(HttpStatus.UNAUTHORIZED, "JWT_ACCESS_TOKEN_IS_NOT_VALID", "Access Token 이 유효하지 않습니다."),
-    _JWT_REFRESH_TOKEN_IS_NOT_VALID(HttpStatus.UNAUTHORIZED, "JWT_REFRESH_TOKEN_IS_NOT_VALID",
-            "Refresh Token 이 유효하지 않습니다."),
-    _JWT_ACCESS_TOKEN_IS_VALID(HttpStatus.UNAUTHORIZED, "JWT_ACCESS_TOKEN_IS_VALID", "Access Token 이 유효합니다."),
-    _JWT_REFRESH_TOKEN_IS_NOT_MATCH(HttpStatus.UNAUTHORIZED, "JWT_REFRESH_TOKEN_IS_NOT_MATCH",
-            "Refresh Token 이 일치하지 않습니다."),
-
-    // Example (For Test)
-    TEST_BAD_REQUEST(HttpStatus.BAD_REQUEST, "TEST_400_001", "잘못된 요청 입니다. (For Test)"),
+    _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "J400", "인증 과정에서 예외가 발생했습니다. JWT Token 재발급이 필요합니다."),
+    _REISSUE_ERROR(HttpStatus.UNAUTHORIZED, "J401", "JWT Token 재발급에서 예외가 발생했습니다. 로그인 요청이 필요합니다."),
 
     // User & Auth Error
-    _USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "USER_NOT_FOUND_400", "일치하는 회원 정보를 찾을 수 없습니다."),
-    _PASSWORD_NOT_MATCH(HttpStatus.UNAUTHORIZED, "AUTH_PASSWORD_NOT_MATCH_401", "비밀번호가 일치하지 않습니다."),
-    _EMAIL_DUPLICATION(HttpStatus.BAD_REQUEST, "AUTH_EMAIL_DUPLICATION_401", "이미 존재하는 이메일입니다."),
-    _EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "AUTH_EMAIL_NOT_FOUND_401", "이메일이 존재하지 않습니다."),
-    _AUTH_CODE_ALREADY_EXIT(HttpStatus.BAD_REQUEST, "AUTH_CODE_ALREADY_EXIST_401", "이미 인증 코드가 존재합니다."),
-    _AUTH_CODE_NOT_EXIST(HttpStatus.BAD_REQUEST, "AUTH_CODE_NOT_EXIST_401", "인증 코드가 존재하지 않습니다."),
-    _AUTH_CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "AUTH_CODE_NOT_MATCH_401", "인증 코드가 일치하지 않습니다."),
-    _AUTH_SHOULD_BE_KAKAO(HttpStatus.BAD_REQUEST, "AUTH_SHOULD_BE_KAKAO_401", "해당 회원은 카카오 로그인 회원입니다."),
-    _ROLE_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "ROLE_TYPE_NOT_FOUND_401", "해당 Role Type이 존재하지 않습니다.");
+    _AUTH_CODE_NOT_EXIST(HttpStatus.BAD_REQUEST, "A400", "인증 코드 제한시간이 초과되었습니다. 인증 코드 발급 API를 호출하세요."),
+    _AUTH_CODE_NOT_MATCH(HttpStatus.BAD_REQUEST, "A401", "인증 코드가 일치하지 않습니다."),
+    _AUTH_CODE_ATTEMPTS_EXCEEDED(HttpStatus.BAD_REQUEST, "A402",
+            "인증 코드의 인증 횟수를 초과하였습니다. 인증 코드 발급 API를 호출하세요."),
+    _AUTH_CODE_ISSUE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "A403",
+            "인증 코드 발급 횟수를 초과하였습니다. 나중에 다시 시도하세요."),
+    _AUTH_CODE_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "A404", "인증되지 않은 상태에서 로그인 할 수 없습니다."),
+    _AUTH_USERNAME_NOT_MATCH(HttpStatus.BAD_REQUEST, "A405", "이미 등록된 번호입니다."),
 
+    // FCFS ERROR
+    _FCFS_ALREADY_CLOSED(HttpStatus.BAD_REQUEST, "F400", "이미 선착순 이벤트가 마감되었습니다.");
+
+    // 예외의 Http 상태값
     private final HttpStatus httpStatus;
+
+    // 예외의 커스텀 코드값
     private final String code;
+
+    // 예외 메시지
     private final String message;
 
+    /**
+     * Error 정보를 갖고있는 ErrorReasonDto를 반환하는 메서드
+     *
+     * @return ErrorReasonDto 객체
+     */
     @Override
     public ResponseDto.ErrorReasonDto getReason() {
-        return ResponseDto.ErrorReasonDto.builder()
-                .isSuccess(false)
-                .code(this.code)
-                .message(this.message)
-                .build();
-    }
-
-    @Override
-    public ResponseDto.ErrorReasonDto getReasonHttpStatus() {
         return ResponseDto.ErrorReasonDto.builder()
                 .httpStatus(this.httpStatus)
                 .isSuccess(false)
@@ -82,13 +64,33 @@ public enum ErrorStatus implements BaseErrorCode {
                 .build();
     }
 
+    /**
+     * HttpStatus를 반환하는 메서드
+     *
+     * @return HttpStatus 객체
+     */
     @Override
-    public String getCode(){
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    /**
+     * 예외 코드를 반환하는 메서드
+     *
+     * @return 커스텀 코드값
+     */
+    @Override
+    public String getCode() {
         return code;
     }
 
+    /**
+     * 예외 메시지를 반환하는 메서드
+     *
+     * @return 예외 메시지
+     */
     @Override
-    public String getErrorMsg(){
+    public String getErrorMsg() {
         return message;
     }
 }
