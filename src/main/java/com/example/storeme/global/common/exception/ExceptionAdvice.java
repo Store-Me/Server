@@ -1,9 +1,8 @@
 package com.example.storeme.global.common.exception;
 
+import com.example.storeme.global.common.code.BaseErrorCode;
 import com.example.storeme.global.common.code.status.ErrorStatus;
-import com.example.storeme.global.common.response.ResponseDto;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.ConstraintViolation;
+import com.example.storeme.global.common.dto.ResponseDto;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -14,11 +13,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -26,94 +25,134 @@ import java.util.Optional;
 @RestControllerAdvice(annotations = {RestController.class})
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(value = GeneralException.class)
-    public ResponseEntity<Object> onThrowException(GeneralException generalException, HttpServletRequest request) {
-        ResponseDto.ErrorReasonDto errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
-        return handleExceptionInternal(generalException, errorReasonHttpStatus,null, request);
-    }
-
+    /**
+     * GeneralException을 처리하는 메서드
+     *
+     * @param generalException 커스텀 예외의 최고 조상 클래스
+     * @param webRequest       client 요청 객체
+     * @return client 응답 객체
+     */
     @ExceptionHandler
-    public ResponseEntity<Object> validation(ConstraintViolationException e, WebRequest request) {
-        String errorMessage = e.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("ConstraintViolationException 추출 도중 에러 발생"));
-
-        return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY,request);
+    public ResponseEntity<Object> handleGeneralException(GeneralException generalException, WebRequest webRequest) {
+        BaseErrorCode errorCode = generalException.getErrorCode();
+        return handleGeneralExceptionInternal(generalException, errorCode, HttpHeaders.EMPTY, webRequest);
     }
 
+    /**
+     * ConstraintViolationException을 처리하는 메서드
+     *
+     * @param constraintViolationException 검증 예외
+     * @param request                      client 요청 객체
+     * @return client 응답 객체
+     */
+    @ExceptionHandler
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException constraintViolationException, WebRequest request) {
+
+        List<String> errorMessages = constraintViolationException.getConstraintViolations().stream()
+                .map(violation -> Optional.ofNullable(violation.getMessage()).orElse(""))
+                .toList();
+
+        return handleConstraintExceptionInternal(constraintViolationException, ErrorStatus._VALIDATION_ERROR, HttpHeaders.EMPTY, request,
+                errorMessages);
+    }
+
+    /**
+     * MethodArgumentNotValidException을 처리하는 메서드
+     * <p>
+     * ResponseEntityExceptionHandler의 메서드를 오버라이딩하여 사용한다.
+     *
+     * @param methodArgumentNotValidException 컨트롤러 메서드의 파라미터 객체에 대한 검증 예외
+     * @param headers                         헤더 객체
+     * @param status                          HttpStatusCode 값
+     * @param request                         client 요청 객체
+     * @return client 응답 객체
+     */
     @Override
     public ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+            MethodArgumentNotValidException methodArgumentNotValidException,
+            HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
         Map<String, String> errors = new LinkedHashMap<>();
 
-        e.getBindingResult().getFieldErrors()
+        methodArgumentNotValidException.getBindingResult().getFieldErrors()
                 .forEach(fieldError -> {
                     String fieldName = fieldError.getField();
                     String errorMessage = Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
-                    errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
+                    errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage)
+                            -> existingErrorMessage + ", " + newErrorMessage);
                 });
 
-        return handleExceptionInternalArgs(e,HttpHeaders.EMPTY,ErrorStatus.valueOf("_BAD_REQUEST"),request,errors);
+        return handleArgsExceptionInternal(methodArgumentNotValidException, HttpHeaders.EMPTY, ErrorStatus._VALIDATION_ERROR, request, errors);
     }
 
+    /**
+     * 나머지 모든 예외들을 처리하는 메서드
+     *
+     * @param e       Exception을 상속한 예외 객체
+     * @param request client 요청 객체
+     * @return client 응답 객체
+     */
     @ExceptionHandler
-    public ResponseEntity<Object> exception(Exception e, WebRequest request) {
+    public ResponseEntity<Object> handleGlobalException(Exception e, WebRequest request) {
 
-        return handleExceptionInternalFalse(e, ErrorStatus._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, ErrorStatus._INTERNAL_SERVER_ERROR.getHttpStatus(),request, e.getMessage());
+        return handleGlobalExceptionInternal(e, ErrorStatus._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, ErrorStatus._INTERNAL_SERVER_ERROR.getHttpStatus(), request);
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(Exception e, ResponseDto.ErrorReasonDto reason,
-                                                           HttpHeaders headers, HttpServletRequest request) {
+    // GeneralException에 대한 client 응답 객체를 생성하는 메서드
+    private ResponseEntity<Object> handleGeneralExceptionInternal(Exception e, BaseErrorCode errorCode,
+                                                                  HttpHeaders headers, WebRequest webRequest) {
 
         log.error("GeneralException captured in ExceptionAdvice", e);
 
-        ResponseDto<Object> body = ResponseDto.onFailure(reason.getCode(),reason.getMessage(),null);
+        ResponseDto<Object> body = ResponseDto.onFailure(errorCode);
 
-        WebRequest webRequest = new ServletWebRequest(request);
         return super.handleExceptionInternal(
                 e,
                 body,
                 headers,
-                reason.getHttpStatus(),
+                errorCode.getHttpStatus(),
                 webRequest
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalConstraint(Exception e, ErrorStatus errorCommonStatus,
-                                                                     HttpHeaders headers, WebRequest request) {
+    // ConstraintViolationException에 대한 client 응답 객체를 생성하는 메서드
+    private ResponseEntity<Object> handleConstraintExceptionInternal(Exception e, ErrorStatus errorStatus,
+                                                                     HttpHeaders headers, WebRequest request,
+                                                                     List<String> errorMessages) {
+
         log.error("ConstraintViolationException captured in ExceptionAdvice", e);
 
-        ResponseDto<Object> body = ResponseDto.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), null);
+        ResponseDto<Object> body = ResponseDto.onFailure(errorStatus.getCode(), errorStatus.getMessage(), errorMessages);
         return super.handleExceptionInternal(
                 e,
                 body,
                 headers,
-                errorCommonStatus.getHttpStatus(),
+                errorStatus.getHttpStatus(),
                 request
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalArgs(Exception e, HttpHeaders headers, ErrorStatus errorCommonStatus,
+    // MethodArgumentNotValidException에 대한 client 응답 객체를 생성하는 메서드
+    private ResponseEntity<Object> handleArgsExceptionInternal(Exception e, HttpHeaders headers, ErrorStatus errorStatus,
                                                                WebRequest request, Map<String, String> errorArgs) {
         log.error("MethodArgumentNotValidException captured in ExceptionAdvice", e);
 
-        ResponseDto<Object> body = ResponseDto.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorArgs);
+        ResponseDto<Object> body = ResponseDto.onFailure(errorStatus.getCode(), errorStatus.getMessage(), errorArgs);
         return super.handleExceptionInternal(
                 e,
                 body,
                 headers,
-                errorCommonStatus.getHttpStatus(),
+                errorStatus.getHttpStatus(),
                 request
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalFalse(Exception e, ErrorStatus errorCommonStatus,
-                                                                HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
+    // 나머지 모든 예외에 대한 client 응답 객체를 생성하는 메서드
+    private ResponseEntity<Object> handleGlobalExceptionInternal(Exception e, ErrorStatus errorStatus,
+                                                                 HttpHeaders headers, HttpStatus status, WebRequest request) {
         log.error("Exception captured in ExceptionAdvice", e);
 
-        ResponseDto<Object> body = ResponseDto.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorPoint);
+        ResponseDto<Object> body = ResponseDto.onFailure(errorStatus);
         return super.handleExceptionInternal(
                 e,
                 body,
@@ -123,3 +162,5 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         );
     }
 }
+
+
