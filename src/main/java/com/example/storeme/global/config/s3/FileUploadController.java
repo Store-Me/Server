@@ -1,6 +1,6 @@
 package com.example.storeme.global.config.s3;
 
-import com.example.storeme.global.common.response.ResponseDto;
+import com.example.storeme.global.common.dto.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
