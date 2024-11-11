@@ -57,6 +57,9 @@ dependencies {
 	//Spring Cloud AWS 라이브러리
 	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+
+	// cool sms 설정
+	implementation 'net.nurigo:sdk:4.3.0'
 }
 
 tasks.named('test') {
