@@ -1,14 +1,16 @@
 package com.example.storeme.global.util;
 
-import com.example.storeme.fo_domain.user.dto.UserTokenResponse;
+import com.example.storeme.fo_domain.user.constant.RoleType;
+import com.example.storeme.fo_domain.user.dto.JwtResponseDto;
 import com.example.storeme.global.common.code.status.ErrorStatus;
+import com.example.storeme.global.common.constant.RedisKeyPrefix;
+import com.example.storeme.global.common.dto.JwtUserDto;
 import com.example.storeme.global.common.exception.JwtAuthenticationException;
 import com.example.storeme.global.config.properties.JwtProperties;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,8 +22,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class JwtUtil {
+
     private final JwtProperties jwtProperties;
-    private final RedisUtil redisUtil;
+    private final StringRedisUtil stringRedisUtil;
 
     // HttpServletRequest 부터 Access Token 추출
     public Optional<String> extractAccessToken(HttpServletRequest request) {
@@ -37,58 +40,69 @@ public class JwtUtil {
     }
 
     // access token 생성
-    public String createAccessToken(String payload) {
-        return this.createToken(payload, jwtProperties.getAccessExpiration());
+    public String createAccessToken(JwtUserDto jwtUserDto) {
+        return this.createToken(jwtUserDto, jwtProperties.getAccessExpiration());
     }
 
     // refresh token 생성
-    public String createRefreshToken(String payload) {
-        return this.createToken(payload, jwtProperties.getRefreshExpiration());
+    public String createRefreshToken(JwtUserDto jwtUserDto) {
+        return this.createToken(jwtUserDto, jwtProperties.getRefreshExpiration());
 
     }
-    // access token 으로부터 회원 아이디 추출
-    public String getUserIdFromAccessToken(String token) {
+    // access token 으로부터 JwtUserDto 객체 반환
+    public JwtUserDto getUserInfoFromAccessToken(String token) {
         try {
-            return Jwts.parser()
+            Claims claims = Jwts.parser()
                     .setSigningKey(jwtProperties.getSecret())
                     .parseClaimsJws(token)
-                    .getBody()
-                    .get("userId", String.class);
+                    .getBody();
+
+            return JwtUserDto.builder()
+                    .userId(claims.getSubject())
+                    .roleType(claims.get("roleType", RoleType.class))
+                    .build();
+
         } catch (Exception exception) {
-            throw new JwtAuthenticationException(ErrorStatus._JWT_ACCESS_TOKEN_IS_NOT_VALID);
+            log.error("Access Token is invalid.");
+            throw new JwtAuthenticationException(ErrorStatus._UNAUTHORIZED);
         }
     }
-    // refresh token 으로부터 회원 아이디 추출
-    public String getUserIdFromRefreshToken(String token) {
+    // refresh token 으로부터 JwtUserDto 객체 반환
+    public JwtUserDto getUserInfoFromRefreshToken(String token) {
         try {
-            return Jwts.parser()
+            Claims claims = Jwts.parser()
                     .setSigningKey(jwtProperties.getSecret())
                     .parseClaimsJws(token)
-                    .getBody()
-                    .get("userId", String.class);
+                    .getBody();
+
+            return JwtUserDto.builder()
+                    .userId(claims.getSubject())
+                    .roleType(claims.get("roleType", RoleType.class))
+                    .build();
         } catch (Exception exception) {
-            throw new JwtAuthenticationException(ErrorStatus._JWT_REFRESH_TOKEN_IS_NOT_VALID);
+            log.error("JWT Refresh Token is invalid during the '/reissue' process.");
+            throw new JwtAuthenticationException(ErrorStatus._REISSUE_ERROR);
         }
     }
 
     // kakao oauth 로그인 & 일반 로그인 시 jwt 응답 생성 + redis refresh 저장
-    public UserTokenResponse createServiceToken(String userId) {
-        redisUtil.deleteData(userId);
-        String accessToken = createAccessToken(userId);
-        String refreshToken = createRefreshToken(userId);
+    public JwtResponseDto createJwtResponse(JwtUserDto jwtUserDto) {
+        stringRedisUtil.deleteData(RedisKeyPrefix.REFRESH_TOKEN.getPrefix() + jwtUserDto.getUserId());
+        String accessToken = createAccessToken(jwtUserDto);
+        String refreshToken = createRefreshToken(jwtUserDto);
 
         /* 서비스 토큰 생성 */
-        UserTokenResponse userTokenResponse = UserTokenResponse.builder()
+        JwtResponseDto jwtResponseDto = JwtResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .expiredTime(LocalDateTime.now().plusSeconds(jwtProperties.getAccessExpiration() / 1000))
                 .build();
 
         /* redis refresh token 저장 */
-        redisUtil.setDataExpire(userId,
-                userTokenResponse.getRefreshToken(), jwtProperties.getRefreshExpiration());
+        stringRedisUtil.setDataExpire(RedisKeyPrefix.REFRESH_TOKEN.getPrefix() + jwtUserDto.getUserId(),
+                jwtResponseDto.getRefreshToken(), jwtProperties.getRefreshExpiration());
 
-        return userTokenResponse;
+        return jwtResponseDto;
     }
     // token 유효성 검증
     public boolean validateToken(String token) {
@@ -111,13 +125,14 @@ public class JwtUtil {
         return false;
     }
 
-    // 실제 token 생성 로직
-    private String createToken(String payload, Long tokenExpiration) {
+    // JWT Token 생성 로직
+    private String createToken(JwtUserDto jwtUserDto, Long tokenExpiration) {
         Claims claims = Jwts.claims();
-        claims.put("userId", payload);
+        claims.put("roleType", jwtUserDto.getRoleType());
         Date tokenExpiresIn = new Date(new Date().getTime() + tokenExpiration);
 
         return Jwts.builder()
+                .setSubject(jwtUserDto.getUserId())
                 .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(tokenExpiresIn)
