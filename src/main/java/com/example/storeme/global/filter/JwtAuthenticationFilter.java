@@ -1,15 +1,16 @@
 package com.example.storeme.global.filter;
 
-import com.example.storeme.fo_domain.user.domain.User;
-import com.example.storeme.fo_domain.user.dto.ReissueTokenResponseDto;
+import com.example.storeme.global.common.constant.RedisKeyPrefix;
+import com.example.storeme.global.common.dto.ReissueJwtResponseDto;
 import com.example.storeme.fo_domain.user.repository.UserRepository;
 import com.example.storeme.global.common.code.status.ErrorStatus;
+import com.example.storeme.global.common.dto.JwtUserDto;
 import com.example.storeme.global.common.exception.JwtAuthenticationException;
-import com.example.storeme.global.common.response.ResponseDto;
+import com.example.storeme.global.common.dto.ResponseDto;
 import com.example.storeme.global.config.properties.JwtProperties;
 import com.example.storeme.global.config.security.UserAuthentication;
 import com.example.storeme.global.util.JwtUtil;
-import com.example.storeme.global.util.RedisUtil;
+import com.example.storeme.global.util.StringRedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.FilterChain;
@@ -18,10 +19,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -36,30 +35,24 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final RedisUtil redisUtil;
+    private final StringRedisUtil stringRedisUtil;
     private final JwtProperties jwtProperties;
-    private final UserRepository userRepository;
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws IOException, ServletException {
 
         // Case 01) Access Token 재발급인 경우(Authorization Header Access Token 유효성 x)
-        if (request.getRequestURI().contains("/reissue")) {
+        if (request.getRequestURI().contains("/jwt/reissue")) {
             try {
                 Optional<String> accessToken = jwtUtil.extractAccessToken(request);
                 Optional<String> refreshToken = jwtUtil.extractRefreshToken(request);
                 if (accessToken.isEmpty() || refreshToken.isEmpty()) {
-                    throw new JwtAuthenticationException(ErrorStatus._JWT_IS_NOT_EXIST);
+                    throw new JwtAuthenticationException(ErrorStatus._REISSUE_ERROR);
                 }
                 this.reissueAccessTokenAndRefreshToken(response, accessToken.get(), refreshToken.get());
             } catch (Exception e) {
                 log.warn("Access or Refresh Token 재발급 오류 발생", e);
-
-                if(e instanceof  JwtAuthenticationException)
-                    request.setAttribute("exception", ((JwtAuthenticationException) e).getCode());
-                else
-                    request.setAttribute("exception", ErrorStatus._INTERNAL_SERVER_ERROR);
 
             }
         }
@@ -74,46 +67,65 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
+    /**
+     * Access & Refresh Token을 재발급하는 메서드
+     *
+     * 1. refresh token 유효성 검증
+     * 2. access token 유효성 검증(유효하지 않아야 함)
+     * 3. redis refresh 와 일치 여부 확인
+     */
     private void reissueAccessTokenAndRefreshToken(HttpServletResponse response,
-                                                   String accessToken, String refreshToken) throws AuthenticationException, IOException {
-        /**
-         * 1. refresh token 유효성 검증
-         * 2. access token 유효성 검증(유효하지 않아야 함)
-         * 3. redis refresh 와 일치 여부 확인
-         */
+                                                   String accessToken, String refreshToken) throws IOException {
+
         checkAllConditions(accessToken, refreshToken);
-        String newAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserIdFromRefreshToken(refreshToken));
-        String newRefreshToken = reIssueRefreshToken(jwtUtil.getUserIdFromRefreshToken(refreshToken));
+        String newAccessToken = jwtUtil.createAccessToken(jwtUtil.getUserInfoFromRefreshToken(refreshToken));
+        String newRefreshToken = reIssueRefreshToken(jwtUtil.getUserInfoFromRefreshToken(refreshToken));
         makeAndSendAccessTokenAndRefreshToken(response, newAccessToken, newRefreshToken);
     }
 
-    // Access Token + Refresh Token 재발급 메소드
+    /**
+     * Access & Refresh Token을 재발급 해야하는 조건인지를 확인하는 메서드
+     *
+     * 1. access Token 유효하지 않은지 확인
+     * 2. refresh Token 유효한지 확인
+     * 3. refresh Token 일치하는지 확인
+     **/
     private void checkAllConditions(String accessToken, String refreshToken) {
-        /**
-         * 1. access Token 유효하지 않은지 확인
-         * 2. refresh Token 유효한지 확인
-         * 3. refresh Token 일치하는지 확인
-         **/
+
         validateAccessToken(accessToken);
         validateRefreshToken(refreshToken);
         isRefreshTokenMatch(refreshToken);
     }
 
+    /**
+     * accessToken이 유효하지 않는지를 확인하는 메서드
+     *
+     * accessToken이 유효하면 재발급을 하면 안되므로 예외 발생
+     */
     private void validateAccessToken(String accessToken) {
         if (jwtUtil.validateToken(accessToken)) {
-            throw new JwtAuthenticationException(ErrorStatus._JWT_ACCESS_TOKEN_IS_VALID);
+            log.error("JWT Access Token is valid during the '/reissue' process.");
+            throw new JwtAuthenticationException(ErrorStatus._REISSUE_ERROR);
         }
     }
 
+    /**
+     * refreshToken이 유효한지를 확인하는 메서드
+     *
+     * refreshToken이 유효하지 않으면 재발급을 할 수 없으므로 예외 발생
+     */
     private void validateRefreshToken(String refreshToken) {
         if (!this.jwtUtil.validateToken(refreshToken)) {
-            throw new JwtAuthenticationException(ErrorStatus._JWT_REFRESH_TOKEN_IS_NOT_VALID);
+            log.error("JWT Refresh Token is invalid during the '/reissue' process.");
+            throw new JwtAuthenticationException(ErrorStatus._REISSUE_ERROR);
         }
     }
 
     private void isRefreshTokenMatch(String refreshToken) {
-        if (!refreshToken.equals(redisUtil.getData(jwtUtil.getUserIdFromRefreshToken(refreshToken)))) {
-            throw new JwtAuthenticationException(ErrorStatus._JWT_REFRESH_TOKEN_IS_NOT_MATCH);
+        if (!refreshToken.equals(stringRedisUtil.getData(RedisKeyPrefix.REFRESH_TOKEN.getPrefix() +
+                jwtUtil.getUserInfoFromRefreshToken(refreshToken).getUserId()))) {
+            log.error("JWT Refresh Token is either missing in Redis or does not match the token in Redis.");
+            throw new JwtAuthenticationException(ErrorStatus._REISSUE_ERROR);
         }
     }
 
@@ -122,10 +134,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * 1. 새로운 Refresh Token 발급
      * 2. 해당 Key 에 해당하는 Redis Value 업데이트
      **/
-    private String reIssueRefreshToken(String userId) {
-        redisUtil.deleteData(userId); // 기존 refresh token 삭제
-        String reIssuedRefreshToken = jwtUtil.createRefreshToken(userId);
-        redisUtil.setDataExpire(userId, reIssuedRefreshToken, jwtProperties.getRefreshExpiration()); // refresh token 저장
+    private String reIssueRefreshToken(JwtUserDto jwtUserDto) {
+        stringRedisUtil.deleteData(RedisKeyPrefix.REFRESH_TOKEN.getPrefix() + jwtUserDto.getUserId()); // 기존 refresh token 삭제
+        String reIssuedRefreshToken = jwtUtil.createRefreshToken(jwtUserDto);
+        stringRedisUtil.setDataExpire(RedisKeyPrefix.REFRESH_TOKEN.getPrefix() + jwtUserDto.getUserId(),
+                reIssuedRefreshToken, jwtProperties.getRefreshExpiration()); // refresh token 저장
         return reIssuedRefreshToken;
     }
 
@@ -139,16 +152,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                                        String refreshToken) throws IOException {
         LocalDateTime expireTime = LocalDateTime.now().plusSeconds(this.jwtProperties.getAccessExpiration() / 1000);
         // refresh token, access token 을 응답 본문에 넣어 응답
-        ReissueTokenResponseDto reissueTokenResponseDto = ReissueTokenResponseDto.builder()
+        ReissueJwtResponseDto reissueJwtResponseDto = ReissueJwtResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .expiredTime(expireTime)
                 .build();
-        makeResultResponse(response, reissueTokenResponseDto);
+        makeResultResponse(response, reissueJwtResponseDto);
     }
 
+    /**
+     * 재발급한 토큰이 담긴 응답을 client에게 보내는 메서드
+     */
     private void makeResultResponse(HttpServletResponse response,
-                                    ReissueTokenResponseDto reissueTokenResponseDto
+                                    ReissueJwtResponseDto reissueJwtResponseDto
     ) throws IOException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
@@ -156,34 +172,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try (OutputStream os = response.getOutputStream()) {
             ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-            objectMapper.writeValue(os, ResponseDto.onSuccess(reissueTokenResponseDto));
+            objectMapper.writeValue(os, ResponseDto.onSuccess(reissueJwtResponseDto));
         }
     }
 
     /**
      * - 일반 API 호출을 처리하는 메소드
      * 1. Authorization 헤더의 access token 검증
-     * 2. accessToken 으로부터 UserId 가져와서 userRepository 조회
-     * 3. Authentication 객체 생성 및 Security Context에 저장
+     * 2. accessToken 으로부터 JwtUserDto 가져와서 Authentication 객체 생성 및 Security Context에 저장
      **/
     private void checkAccessTokenAndAuthentication(HttpServletRequest request) {
         try {
             // jwt header 에 존재하지 않는 경우
             String accessToken = jwtUtil.extractAccessToken(request)
-                    .orElseThrow(() -> new JwtAuthenticationException(ErrorStatus._JWT_IS_NOT_EXIST));
+                    .orElseThrow(() -> {
+                        log.error("Access Token is missing in the Authorization header.");
+                        return new JwtAuthenticationException(ErrorStatus._UNAUTHORIZED);
+                    });
 
-            Long userId = Long.valueOf(jwtUtil.getUserIdFromAccessToken(accessToken));
-            // accessToken 을 통해 User Payload 가져 오고 회원 조회
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new JwtAuthenticationException(ErrorStatus._USER_NOT_FOUND));
+            JwtUserDto jwtUserDto = jwtUtil.getUserInfoFromAccessToken(accessToken);
 
             // SecurityContext 에 인증된 Authentication 저장
-            UserAuthentication authentication = new UserAuthentication(user);
+            UserAuthentication authentication = new UserAuthentication(jwtUserDto);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            request.setAttribute("UserId", userId);
+            request.setAttribute("userId", jwtUserDto.getUserId());
 
         } catch (AuthenticationException e) {
-            request.setAttribute("exception", e.getMessage());
+
             log.warn("Access Token 오류 발생", e);
         }
     }
