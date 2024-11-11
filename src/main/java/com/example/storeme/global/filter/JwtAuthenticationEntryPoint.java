@@ -1,8 +1,7 @@
 package com.example.storeme.global.filter;
 
-import com.example.storeme.global.common.code.BaseErrorCode;
 import com.example.storeme.global.common.code.status.ErrorStatus;
-import com.example.storeme.global.common.response.ResponseDto;
+import com.example.storeme.global.common.dto.ResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,17 +17,15 @@ import java.io.OutputStream;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        log.warn("JwtAuthenticationEntryPoint에서 response 생성중, errorMsg: {}", request.getAttribute("ErrorMsg"));
-
-        BaseErrorCode errorCode = (BaseErrorCode)request.getAttribute("exception");
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException {
+        log.warn("JwtAuthenticationEntryPoint에서 response 생성중, errorMsg: {}", authenticationException.getMessage());
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         try (OutputStream os = response.getOutputStream()) {
             ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.writeValue(os, ResponseDto.onFailure(errorCode));
+            objectMapper.writeValue(os, ResponseDto.onFailure(ErrorStatus._UNAUTHORIZED));
             os.flush();
         }
     }
