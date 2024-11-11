@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 /**
  * Kakao 계정 회원가입 요청 Dto 클래스
@@ -26,7 +27,7 @@ public class KakaoSignupRequestDto {
     private String phoneNumber;
 
     @NotNull
-    @Size(max = 20, message = ValidationConstant.NICKNAME_MSG)
+    @Length(max = 10, message = ValidationConstant.NICKNAME_MSG)
     private String nickname;
 
     @NotNull
