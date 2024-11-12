@@ -31,7 +31,7 @@ public class User{
     @Column(name = "nickname", nullable = false, length = 30)
     private String nickname;
 
-    @Column(name = "profile_image_url", nullable = false, length = 2048)
+    @Column(name = "profile_image_url", length = 2048)
     private String profileImageUrl;
 
     @Column(name = "privacy_consent", nullable = false)
