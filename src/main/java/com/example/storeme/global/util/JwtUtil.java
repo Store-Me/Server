@@ -8,6 +8,7 @@ import com.example.storeme.global.common.dto.JwtUserDto;
 import com.example.storeme.global.common.exception.JwtAuthenticationException;
 import com.example.storeme.global.config.properties.JwtProperties;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,8 +53,9 @@ public class JwtUtil {
     // access token 으로부터 JwtUserDto 객체 반환
     public JwtUserDto getUserInfoFromAccessToken(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(jwtProperties.getSecret())
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes()))
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
 
@@ -70,8 +72,9 @@ public class JwtUtil {
     // refresh token 으로부터 JwtUserDto 객체 반환
     public JwtUserDto getUserInfoFromRefreshToken(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(jwtProperties.getSecret())
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes()))
+                    .build()
                     .parseClaimsJws(token)
                     .getBody();
 
@@ -107,8 +110,9 @@ public class JwtUtil {
     // token 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jws<Claims> claimsJws = Jwts.parser()
-                    .setSigningKey(jwtProperties.getSecret())
+            Jws<Claims> claimsJws = Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes()))
+                    .build()
                     .parseClaimsJws(token);
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (ExpiredJwtException exception) {
@@ -117,7 +121,7 @@ public class JwtUtil {
             log.warn("지원되지 않는 jwt 입니다.");
         } catch (IllegalArgumentException exception) {
             log.warn("token에 값이 없습니다.");
-        } catch(SignatureException exception){
+        } catch(SecurityException  exception){
             log.warn("signature에 오류가 존재합니다.");
         } catch(MalformedJwtException exception){
             log.warn("jwt가 유효하지 않습니다.");
@@ -136,7 +140,7 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(tokenExpiresIn)
-                .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecret())
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes()), SignatureAlgorithm.HS512)
                 .compact();
     }
 }
