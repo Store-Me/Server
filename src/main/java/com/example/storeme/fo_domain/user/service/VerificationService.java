@@ -1,6 +1,5 @@
 package com.example.storeme.fo_domain.user.service;
 
-import com.example.storeme.fo_domain.user.constant.SignupType;
 import com.example.storeme.fo_domain.user.constant.VerificationProperty;
 import com.example.storeme.fo_domain.user.domain.User;
 import com.example.storeme.fo_domain.user.dto.verification.ConfirmCodeRequestDto;
@@ -185,8 +184,6 @@ public class VerificationService {
 
     /**
      * 인증번호가 Redis에 저장된 인증번호와 같은지 검사하는 메서드
-     * @param phoneNumber
-     * @param verificationCode
      */
     public void checkIfVerificationCodeConfirmed(String phoneNumber, String verificationCode){
         String originalVerificationCode = stringRedisUtil.getData(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
