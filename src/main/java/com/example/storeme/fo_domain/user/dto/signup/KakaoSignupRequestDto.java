@@ -31,10 +31,6 @@ public class KakaoSignupRequestDto {
     private String nickname;
 
     @NotNull
-    @Pattern(regexp = ValidationConstant.URL_REGEX, message = ValidationConstant.URL_MSG)
-    private String profileImageUrl;
-
-    @NotNull
     private Boolean privacyConsent;
 
     @NotNull

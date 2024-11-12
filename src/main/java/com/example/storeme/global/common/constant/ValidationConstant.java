@@ -27,10 +27,6 @@ public class ValidationConstant {
 
     public static final String NICKNAME_MSG = "잘못된 닉네임 형식입니다.";
 
-    public static final String URL_REGEX =
-            "^(https:\\/\\/[a-zA-Z0-9.-]+\\.s3\\.[a-zA-Z0-9.-]+\\.amazonaws\\.com\\/[a-zA-Z0-9\\/\\-_\\.]+)$";
-    public static final String URL_MSG = "유효하지 않은 S3 URL입니다.";
-
     public static final String MIN_VALUE_MSG = "값은 최소 {value}이어야 합니다.";
     public static final String MAX_VALUE_MSG = "값은 최대 {value}이어야 합니다.";
 }
