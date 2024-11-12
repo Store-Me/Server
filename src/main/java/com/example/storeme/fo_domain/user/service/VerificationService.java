@@ -135,9 +135,10 @@ public class VerificationService {
                 confirmCodeRequestDto.getPhoneNumber());
 
         Optional<User> optionalUser = userRepository.findByPhoneNumber(confirmCodeRequestDto.getPhoneNumber());
+
+        // 회원가입한 적이 없으로 다음 회원가입 모드는 NORMAL_SIGNUP
+        // redis에 저장된 인증코드 ttl을 CONFIRMED_CODE_TIME_LIMIT 만큼 설정
         if(optionalUser.isEmpty()){
-            // 인증 성공 응답 => 정상적인 회원가입
-            // redis에 code 값 대신 CONFIRMED 넣고 TTL 1시간으로 설정
             stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
                             confirmCodeRequestDto.getPhoneNumber(),
                     VerificationProperty.CONFIRMED_CODE_TIME_LIMIT.getValue());
@@ -148,6 +149,8 @@ public class VerificationService {
             User user = optionalUser.get();
             switch(confirmCodeRequestDto.getSignupType()){
                 case APP:
+                    // App 계정으로 회원가입한 적이 없으므로 다음 회원가입 모드는 LINK_SIGNUP
+                    // redis에 저장된 인증코드 ttl을 CONFIRMED_CODE_TIME_LIMIT 만큼 설정
                     if(user.getAccountId()==null){
                         stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
                                         confirmCodeRequestDto.getPhoneNumber(),
@@ -155,11 +158,14 @@ public class VerificationService {
 
                         return ConfirmCodeResponseDto.SignupMode.LINK_SIGNUP;
                     }
+                    // 이미 해당 계정으로 회원가입 했으므로 ALREADY_SIGNED_UP을 반환
                     stringRedisUtil.deleteData(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
                             confirmCodeRequestDto.getPhoneNumber());
                     return ConfirmCodeResponseDto.SignupMode.ALREADY_SIGNED_UP;
 
                 case KAKAO:
+                    // Kakao 계정으로 회원가입한 적이 없으므로 다음 회원가입 모드는 LINK_SIGNUP
+                    // redis에 저장된 인증코드 ttl을 CONFIRMED_CODE_TIME_LIMIT 만큼 설정
                     if(user.getKakaoId()==null){
                         stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
                                         confirmCodeRequestDto.getPhoneNumber(),
@@ -167,6 +173,7 @@ public class VerificationService {
 
                         return ConfirmCodeResponseDto.SignupMode.LINK_SIGNUP;
                     }
+                    // 이미 해당 계정으로 회원가입 했으므로 ALREADY_SIGNED_UP을 반환
                     stringRedisUtil.deleteData(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
                             confirmCodeRequestDto.getPhoneNumber());
                     return ConfirmCodeResponseDto.SignupMode.ALREADY_SIGNED_UP;
