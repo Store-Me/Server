@@ -1,7 +1,7 @@
 package com.example.storeme.global.util;
 
 import com.example.storeme.fo_domain.user.constant.RoleType;
-import com.example.storeme.fo_domain.user.dto.JwtResponseDto;
+import com.example.storeme.fo_domain.user.dto.user.JwtResponseDto;
 import com.example.storeme.global.common.code.status.ErrorStatus;
 import com.example.storeme.global.common.constant.RedisKeyPrefix;
 import com.example.storeme.global.common.dto.JwtUserDto;
