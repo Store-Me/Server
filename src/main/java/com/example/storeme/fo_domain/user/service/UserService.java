@@ -4,6 +4,7 @@ import com.example.storeme.fo_domain.user.domain.User;
 import com.example.storeme.fo_domain.user.dto.user.AppLoginRequestDto;
 import com.example.storeme.fo_domain.user.dto.user.JwtResponseDto;
 import com.example.storeme.fo_domain.user.dto.user.KakaoLoginRequestDto;
+import com.example.storeme.fo_domain.user.dto.user.UpdateUserInfoRequestDto;
 import com.example.storeme.fo_domain.user.exception.UserException;
 import com.example.storeme.fo_domain.user.repository.UserRepository;
 import com.example.storeme.global.common.code.status.ErrorStatus;
@@ -61,6 +62,42 @@ public class UserService {
                 .userId(String.valueOf(user.getId()))
                 .roleType(user.getRoleType())
                 .build());
+
+    }
+
+    /**
+     * 유저의 정보를 변경하는 메서드
+     */
+    public void updateUserInfo(Long userId, UpdateUserInfoRequestDto updateUserInfoRequestDto){
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.error("User not found with id: {}", userId);
+            return new UserException(ErrorStatus._BAD_REQUEST);
+        });
+
+        // 비밀번호 변경
+        // DB에 user의 password 정보가 없다면 예외 발생
+        if(updateUserInfoRequestDto.getPassword()!=null && user.getPassword() == null){
+            log.warn("User's password in DB is null");
+            throw new UserException(ErrorStatus._BAD_REQUEST);
+        }
+        else if(updateUserInfoRequestDto.getPassword()!=null &&
+            !bCryptPasswordEncoder.matches(updateUserInfoRequestDto.getPassword(), user.getPassword()))
+            user.setPassword(bCryptPasswordEncoder.encode(updateUserInfoRequestDto.getPassword()));
+
+        // 닉네임 변경
+        if(updateUserInfoRequestDto.getNickname()!=null &&
+                !updateUserInfoRequestDto.getNickname().equals(user.getNickname()))
+            user.setNickname(user.getNickname());
+
+        // 개인정보 동의 정보 변경
+        if(updateUserInfoRequestDto.getPrivacyConsent()!=null &&
+                !updateUserInfoRequestDto.getPrivacyConsent().equals(user.getPrivacyConsent()))
+            user.setPrivacyConsent(user.getPrivacyConsent());
+
+        // 마케팅 활용 동의 정보 변경
+        if(updateUserInfoRequestDto.getMarketingConsent()!=null &&
+                !updateUserInfoRequestDto.getMarketingConsent().equals(user.getMarketingConsent()))
+            user.setMarketingConsent(user.getMarketingConsent());
 
     }
 }
