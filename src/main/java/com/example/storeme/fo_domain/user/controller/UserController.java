@@ -3,12 +3,16 @@ package com.example.storeme.fo_domain.user.controller;
 import com.example.storeme.fo_domain.user.dto.user.AppLoginRequestDto;
 import com.example.storeme.fo_domain.user.dto.user.JwtResponseDto;
 import com.example.storeme.fo_domain.user.dto.user.KakaoLoginRequestDto;
+import com.example.storeme.fo_domain.user.dto.user.UpdateUserInfoRequestDto;
 import com.example.storeme.fo_domain.user.service.UserService;
+import com.example.storeme.global.common.annotation.AuthInfo;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,5 +39,14 @@ public class UserController {
         return ResponseDto.onSuccess(userService.handleKakaoLogin(kakaoLoginRequestDto));
     }
 
+    @PatchMapping("/user")
+    @Operation(summary = "유저 정보 수정")
+    public ResponseDto<Void> updateUserInfo(@Parameter(hidden = true) @AuthInfo Long userId,
+            @Valid @RequestBody UpdateUserInfoRequestDto updateUserInfoRequestDto){
+
+        userService.updateUserInfo(userId, updateUserInfoRequestDto);
+
+        return ResponseDto.onSuccess();
+    }
 
 }
