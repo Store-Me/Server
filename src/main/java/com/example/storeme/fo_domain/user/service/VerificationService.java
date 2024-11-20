@@ -3,7 +3,6 @@ package com.example.storeme.fo_domain.user.service;
 import com.example.storeme.fo_domain.user.constant.VerificationProperty;
 import com.example.storeme.fo_domain.user.domain.User;
 import com.example.storeme.fo_domain.user.dto.verification.ConfirmCodeRequestDto;
-import com.example.storeme.fo_domain.user.dto.verification.ConfirmCodeResponseDto;
 import com.example.storeme.fo_domain.user.dto.verification.VerificationCodeRequestDto;
 import com.example.storeme.fo_domain.user.dto.verification.VerificationCodeResponseDto;
 import com.example.storeme.fo_domain.user.exception.UserException;
@@ -36,7 +35,6 @@ public class VerificationService {
     private final StringRedisUtil stringRedisUtil;
     private final RandomCodeUtil randomCodeUtil;
     private final SmsProperties smsProperties;
-    private final UserRepository userRepository;
 
     /**
      * 인증 코드를 발급하는 메서드
@@ -96,9 +94,8 @@ public class VerificationService {
      * 1. 인증 코드를 검증하여 Redis에 있는 인증코드와 같은지를 검사한다.
      * 2. 제한시간이 지났거나 인증코드 불일치, 혹은 인증 제한 횟수를 초과한 경우 예외를 던진다.
      * 3. 인증 코드가 유효한지 검사하여 유효하지 않으면 예외를 던진다.
-     * 4. 다음에 client가 요청해야 할 회원가입 유형을 생성하여 응답 Dto에 담아 반환한다.
      */
-    public ConfirmCodeResponseDto confirmVerificationCode(ConfirmCodeRequestDto confirmCodeRequestDto) {
+    public void confirmVerificationCode(ConfirmCodeRequestDto confirmCodeRequestDto) {
 
         // 인증코드의 인증 제한 횟수를 초과하면 예외 발생
         if (stringRedisUtil.hasKey(RedisKeyPrefix.VERIFICATION_ATTEMPTS.getPrefix() +
@@ -121,65 +118,16 @@ public class VerificationService {
         checkIfVerificationCodeConfirmed(confirmCodeRequestDto.getPhoneNumber(),
                 confirmCodeRequestDto.getVerificationCode());
 
-        // client가 요청해야 할 회원가입 유형을 응답 Dto에 담아 반환한다.
-        return new ConfirmCodeResponseDto(getSignupMode(confirmCodeRequestDto));
-
-    }
-
-    // 다음에 client가 요청해야 할 회원가입 유형을 반환한다.
-    private ConfirmCodeResponseDto.SignupMode getSignupMode(ConfirmCodeRequestDto confirmCodeRequestDto) {
+        // 인증 시도 횟수 및 인증 코드 발급 횟수 초기화
         stringRedisUtil.deleteData(RedisKeyPrefix.VERIFICATION_ISSUE_COUNT.getPrefix() +
                 confirmCodeRequestDto.getPhoneNumber());
         stringRedisUtil.deleteData(RedisKeyPrefix.VERIFICATION_ATTEMPTS.getPrefix() +
                 confirmCodeRequestDto.getPhoneNumber());
 
-        Optional<User> optionalUser = userRepository.findByPhoneNumber(confirmCodeRequestDto.getPhoneNumber());
+        stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
+                        confirmCodeRequestDto.getPhoneNumber(),
+                VerificationProperty.CONFIRMED_CODE_TIME_LIMIT.getValue());
 
-        // 회원가입한 적이 없으로 다음 회원가입 모드는 NORMAL_SIGNUP
-        // redis에 저장된 인증코드 ttl을 CONFIRMED_CODE_TIME_LIMIT 만큼 설정
-        if(optionalUser.isEmpty()){
-            stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
-                            confirmCodeRequestDto.getPhoneNumber(),
-                    VerificationProperty.CONFIRMED_CODE_TIME_LIMIT.getValue());
-
-            return ConfirmCodeResponseDto.SignupMode.NORMAL_SIGNUP;
-        }
-        else{
-            User user = optionalUser.get();
-            switch(confirmCodeRequestDto.getSignupType()){
-                case APP:
-                    // App 계정으로 회원가입한 적이 없으므로 다음 회원가입 모드는 LINK_SIGNUP
-                    // redis에 저장된 인증코드 ttl을 CONFIRMED_CODE_TIME_LIMIT 만큼 설정
-                    if(user.getAccountId()==null){
-                        stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
-                                        confirmCodeRequestDto.getPhoneNumber(),
-                                VerificationProperty.CONFIRMED_CODE_TIME_LIMIT.getValue());
-
-                        return ConfirmCodeResponseDto.SignupMode.LINK_SIGNUP;
-                    }
-                    // 이미 해당 계정으로 회원가입 했으므로 ALREADY_SIGNED_UP을 반환
-                    stringRedisUtil.deleteData(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
-                            confirmCodeRequestDto.getPhoneNumber());
-                    return ConfirmCodeResponseDto.SignupMode.ALREADY_SIGNED_UP;
-
-                case KAKAO:
-                    // Kakao 계정으로 회원가입한 적이 없으므로 다음 회원가입 모드는 LINK_SIGNUP
-                    // redis에 저장된 인증코드 ttl을 CONFIRMED_CODE_TIME_LIMIT 만큼 설정
-                    if(user.getKakaoId()==null){
-                        stringRedisUtil.setExpire(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
-                                        confirmCodeRequestDto.getPhoneNumber(),
-                                VerificationProperty.CONFIRMED_CODE_TIME_LIMIT.getValue());
-
-                        return ConfirmCodeResponseDto.SignupMode.LINK_SIGNUP;
-                    }
-                    // 이미 해당 계정으로 회원가입 했으므로 ALREADY_SIGNED_UP을 반환
-                    stringRedisUtil.deleteData(RedisKeyPrefix.VERIFICATION_CODE.getPrefix() +
-                            confirmCodeRequestDto.getPhoneNumber());
-                    return ConfirmCodeResponseDto.SignupMode.ALREADY_SIGNED_UP;
-                default:
-                    return ConfirmCodeResponseDto.SignupMode.NORMAL_SIGNUP;
-            }
-        }
     }
 
     /**
