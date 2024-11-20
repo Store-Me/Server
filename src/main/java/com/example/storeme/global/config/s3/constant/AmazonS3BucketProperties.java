@@ -1,4 +1,4 @@
-package com.example.storeme.global.config.s3;
+package com.example.storeme.global.config.s3.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
