@@ -1,6 +1,7 @@
 package com.example.storeme.fo_domain.user.dto.signup;
 
 import com.example.storeme.fo_domain.user.constant.RoleType;
+import com.example.storeme.fo_domain.user.validator.TrueOnly;
 import com.example.storeme.global.common.constant.ValidationConstant;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -38,6 +39,7 @@ public class AppCustomerSignupRequestDto {
     private String nickname;
 
     @NotNull
+    @TrueOnly
     private Boolean privacyConsent;
 
     @NotNull

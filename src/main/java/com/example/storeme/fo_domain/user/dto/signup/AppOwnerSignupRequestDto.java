@@ -1,6 +1,7 @@
 package com.example.storeme.fo_domain.user.dto.signup;
 
 import com.example.storeme.fo_domain.user.constant.StoreCategory;
+import com.example.storeme.fo_domain.user.validator.TrueOnly;
 import com.example.storeme.global.common.constant.ValidationConstant;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class AppOwnerSignupRequestDto {
     private String phoneNumber;
 
     @NotNull
+    @TrueOnly
     private Boolean privacyConsent;
 
     @NotNull
