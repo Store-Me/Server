@@ -20,9 +20,8 @@ public class ValidationConstant {
     public static final String KAKAO_ID_MSG = "유효하지 않은 카카오 ID입니다.";
 
     // 최소 8자에서 최대 20자까지 허용
-    // 적어도 하나의 대문자, 소문자, 숫자, 특수문자 포함
     // 허용할 특수문자: @, #, $, %, &, *, !, ^
-    public static final String PASSWORD_REGEX = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&*!])[A-Za-z\\d@#$%^&*!]{8,20}$";
+    public static final String PASSWORD_REGEX = "^[A-Za-z\\d@#$%^&*!]{8,20}$";
     public static final String PASSWORD_MSG = "잘못된 비밀번호 형식입니다.";
 
     public static final String NICKNAME_MSG = "잘못된 닉네임 형식입니다.";
