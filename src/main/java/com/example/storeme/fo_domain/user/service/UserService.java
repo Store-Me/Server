@@ -1,19 +1,22 @@
 package com.example.storeme.fo_domain.user.service;
 
+import com.example.storeme.fo_domain.customer.domain.Customer;
+import com.example.storeme.fo_domain.store.domain.Store;
+import com.example.storeme.fo_domain.store.repository.StoreRepository;
+import com.example.storeme.fo_domain.user.constant.RoleType;
 import com.example.storeme.fo_domain.user.domain.User;
-import com.example.storeme.fo_domain.user.dto.user.AppLoginRequestDto;
-import com.example.storeme.fo_domain.user.dto.user.JwtResponseDto;
-import com.example.storeme.fo_domain.user.dto.user.KakaoLoginRequestDto;
-import com.example.storeme.fo_domain.user.dto.user.UpdateUserInfoRequestDto;
+import com.example.storeme.fo_domain.user.dto.user.*;
 import com.example.storeme.fo_domain.user.exception.UserException;
 import com.example.storeme.fo_domain.user.repository.UserRepository;
 import com.example.storeme.global.common.code.status.ErrorStatus;
-import com.example.storeme.global.common.dto.JwtUserDto;
-import com.example.storeme.global.util.JwtUtil;
+import com.example.storeme.global.config.s3.constant.S3Folder;
+import com.example.storeme.global.config.s3.service.ImageFileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 유저 관련 요청을 처리하는 서비스 클래스
@@ -24,80 +27,162 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtUtil jwtUtil;
+    private final ImageFileService imageFileService;
+    private final StoreRepository storeRepository;
 
     /**
-     * App 계정 로그인을 처리하는 메서드
+     * 손님 정보를 반환하는 메서드
      */
-    public JwtResponseDto handleAppLogin(AppLoginRequestDto appLoginRequestDto){
-
-        User user = userRepository.findByAccountId(appLoginRequestDto.getAccountId()).orElseThrow(() -> {
-            log.error("User not found with accountId: {}", appLoginRequestDto.getAccountId());
+    @Transactional(readOnly = true)
+    public CustomerInfoResponseDto getCustomerInfo(Long userId){
+        User user = userRepository.findById(userId).orElseThrow(()->{
+            log.error("User not found with id: {}", userId);
             return new UserException(ErrorStatus._BAD_REQUEST);
         });
+        Customer customer = user.getCustomer();
 
-        // 비밀번호가 일치하는지 확인
-        if(!bCryptPasswordEncoder.matches(appLoginRequestDto.getPassword(), user.getPassword())){
-            log.error("Wrong password");
-            throw new UserException(ErrorStatus._BAD_REQUEST);
-        }
-
-        return jwtUtil.createJwtResponse(JwtUserDto.builder()
-                .userId(String.valueOf(user.getId()))
-                .roleType(user.getRoleType())
-                .build());
+        return CustomerInfoResponseDto.builder()
+                .accountId(user.getAccountId())
+                .phoneNumber(user.getPhoneNumber())
+                .profileImageUrl(customer.getProfileImageUrl())
+                .hasAppId(user.getAccountId()!=null)
+                .hasKakaoId(user.getKakaoId()!=null)
+                .build();
     }
 
     /**
-     * Kakao 계정 로그인을 처리하는 메서드
+     * 사장님 정보를 반환하는 메서드
      */
-    public JwtResponseDto handleKakaoLogin(KakaoLoginRequestDto kakaoLoginRequestDto){
-
-        User user = userRepository.findByKakaoId(kakaoLoginRequestDto.getKakaoId()).orElseThrow(() -> {
-            log.error("User not found with kakaoId: {}", kakaoLoginRequestDto.getKakaoId());
+    @Transactional(readOnly = true)
+    public OwnerInfoResponseDto getOwnerInfo(Long userId, Long storeId){
+        User user = userRepository.findById(userId).orElseThrow(()->{
+            log.error("User not found with id: {}", userId);
             return new UserException(ErrorStatus._BAD_REQUEST);
         });
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> {
+                    log.error("Store not found with id: {}", storeId);
+                    return new UserException(ErrorStatus._BAD_REQUEST);
+                });
 
-        return jwtUtil.createJwtResponse(JwtUserDto.builder()
-                .userId(String.valueOf(user.getId()))
-                .roleType(user.getRoleType())
-                .build());
-
+        return OwnerInfoResponseDto.builder()
+                .accountId(user.getAccountId())
+                .storeProfileImageUrl(store.getProfileImageUrl())
+                .hasAppId(user.getAccountId()!=null)
+                .hasKakaoId(user.getKakaoId()!=null)
+                .build();
     }
 
     /**
-     * 유저의 정보를 변경하는 메서드
+     * 손님 정보를 변경하는 메서드
      */
-    public void updateUserInfo(Long userId, UpdateUserInfoRequestDto updateUserInfoRequestDto){
+    @Transactional
+    public void updateCustomerInfo(Long userId, UpdateCustomerInfoRequestDto updateCustomerInfoRequestDto,
+                                   MultipartFile profileImageFile){
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.error("User not found with id: {}", userId);
             return new UserException(ErrorStatus._BAD_REQUEST);
         });
 
-        // 비밀번호 변경
-        // DB에 user의 password 정보가 없다면 예외 발생
-        if(updateUserInfoRequestDto.getPassword()!=null && user.getPassword() == null){
-            log.warn("User's password in DB is null");
+        if(user.getRoleType() == RoleType.OWNER){
+            log.error("User role type is not Customer");
             throw new UserException(ErrorStatus._BAD_REQUEST);
         }
-        else if(updateUserInfoRequestDto.getPassword()!=null &&
-            !bCryptPasswordEncoder.matches(updateUserInfoRequestDto.getPassword(), user.getPassword()))
-            user.setPassword(bCryptPasswordEncoder.encode(updateUserInfoRequestDto.getPassword()));
+
+        Customer customer = user.getCustomer();
+
+        // App 계정 Id 변경
+        if(updateCustomerInfoRequestDto.getAccountId() != null &&
+                !updateCustomerInfoRequestDto.getAccountId().equals(user.getAccountId()))
+            user.setAccountId(updateCustomerInfoRequestDto.getAccountId());
+
+        // 비밀번호 변경
+        if(updateCustomerInfoRequestDto.getPassword()!=null &&
+            !bCryptPasswordEncoder.matches(updateCustomerInfoRequestDto.getPassword(), user.getPassword()))
+            user.setPassword(bCryptPasswordEncoder.encode(updateCustomerInfoRequestDto.getPassword()));
 
         // 닉네임 변경
-        if(updateUserInfoRequestDto.getNickname()!=null &&
-                !updateUserInfoRequestDto.getNickname().equals(user.getNickname()))
-            user.setNickname(user.getNickname());
+        if(updateCustomerInfoRequestDto.getNickname()!=null &&
+                !updateCustomerInfoRequestDto.getNickname().equals(customer.getNickname()))
+            customer.setNickname(customer.getNickname());
 
-        // 개인정보 동의 정보 변경
-        if(updateUserInfoRequestDto.getPrivacyConsent()!=null &&
-                !updateUserInfoRequestDto.getPrivacyConsent().equals(user.getPrivacyConsent()))
-            user.setPrivacyConsent(user.getPrivacyConsent());
+        // 프로필 이미지 변경
+        if(profileImageFile != null){
+            imageFileService.deleteImageFile(customer.getProfileImageUrl());
+            String profileImageFileUrl =
+                    imageFileService.uploadImageFile(S3Folder.CUSTOMER_PROFILE_IMAGE, profileImageFile);
+            customer.setProfileImageUrl(profileImageFileUrl);
+        }
 
-        // 마케팅 활용 동의 정보 변경
-        if(updateUserInfoRequestDto.getMarketingConsent()!=null &&
-                !updateUserInfoRequestDto.getMarketingConsent().equals(user.getMarketingConsent()))
-            user.setMarketingConsent(user.getMarketingConsent());
+    }
 
+    /**
+     * 사장님 정보를 변경하는 메서드
+     */
+    @Transactional
+    public void updateOwnerInfo(Long userId, UpdateOwnerInfoRequestDto updateOwnerInfoRequestDto,
+                                MultipartFile storeProfileImageFile){
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.error("User not found with id: {}", userId);
+            return new UserException(ErrorStatus._BAD_REQUEST);
+        });
+
+        // App 계정 Id 변경
+        if(updateOwnerInfoRequestDto.getAccountId() != null &&
+                !updateOwnerInfoRequestDto.getAccountId().equals(user.getAccountId()))
+            user.setAccountId(updateOwnerInfoRequestDto.getAccountId());
+
+        // 비밀번호 변경
+        if(updateOwnerInfoRequestDto.getPassword()!=null &&
+                !bCryptPasswordEncoder.matches(updateOwnerInfoRequestDto.getPassword(), user.getPassword()))
+            user.setPassword(bCryptPasswordEncoder.encode(updateOwnerInfoRequestDto.getPassword()));
+
+        // 가게 프로필 이미지 변경
+        if(updateOwnerInfoRequestDto.getStoreId()!=null &&
+            storeProfileImageFile != null){
+
+            Store store = storeRepository.findById(updateOwnerInfoRequestDto.getStoreId())
+                            .orElseThrow(() -> {
+                                log.error("Store not found with id: {}", updateOwnerInfoRequestDto.getStoreId());
+                                return new UserException(ErrorStatus._BAD_REQUEST);
+                            });
+
+            imageFileService.deleteImageFile(store.getProfileImageUrl());
+            String storeProfileImageFileUrl =
+                    imageFileService.uploadImageFile(S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
+            store.setProfileImageUrl(storeProfileImageFileUrl);
+        }
+    }
+
+    /**
+     * 손님 정보를 DB에 저장하는 메서드
+     */
+    @Transactional
+    public void saveCustomerInfo(Long userId, SaveCustomerInfoRequestDto saveCustomerInfoRequestDto,
+                                 MultipartFile profileImageFile){
+
+        User user = userRepository.findById(userId).orElseThrow(() -> {
+            log.error("User not found with id: {}", userId);
+            return new UserException(ErrorStatus._BAD_REQUEST);
+        });
+
+        Customer customer = user.getCustomer();
+
+        // 닉네임 저장
+        customer.setNickname(saveCustomerInfoRequestDto.getNickname());
+
+        // 프로필 이미지 url 저장
+        if(profileImageFile != null){
+            String profileImageFileUrl =
+                    imageFileService.uploadImageFile(S3Folder.CUSTOMER_PROFILE_IMAGE, profileImageFile);
+            customer.setProfileImageUrl(profileImageFileUrl);
+        }
+    }
+
+    /**
+     * 회원 탈퇴를 수행하는 메서드
+     */
+    @Transactional
+    public void deleteUser(Long userId){
+        userRepository.deleteById(userId);
     }
 }
