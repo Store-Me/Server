@@ -11,13 +11,14 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
- * App 계정 회원가입 요청 Dto 클래스
+ * App 계정 손님타입 회원가입 요청 Dto 클래스
  */
 @Getter
 @NoArgsConstructor
-public class AppSignupRequestDto {
+public class AppCustomerSignupRequestDto {
 
     @NotNull
     @Pattern(regexp = ValidationConstant.ACCOUNT_ID_REGEX, message = ValidationConstant.ACCOUNT_ID_MSG)
