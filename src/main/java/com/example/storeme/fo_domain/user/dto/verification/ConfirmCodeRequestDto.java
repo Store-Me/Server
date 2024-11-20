@@ -22,6 +22,5 @@ public class ConfirmCodeRequestDto {
             message = ValidationConstant.VERIFICATION_CODE_MSG)
     private String verificationCode;
 
-    @NotNull
-    private SignupType signupType;
+
 }
