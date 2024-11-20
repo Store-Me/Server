@@ -7,10 +7,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * 회원가입 요청을 처리하는 컨트롤러 클래스
@@ -24,22 +25,56 @@ public class SignupController {
     private final SignupService signupService;
 
     /**
-     * App 계정 회원가입 요청을 처리하는 메서드
+     * App 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
-    @Operation(summary = "App 계정 회원가입")
-    @PostMapping("/app")
-    public ResponseDto<Void> handleAppSignup(@Valid @RequestBody AppSignupRequestDto appSignupRequestDto) {
-        signupService.handleAppSignup(appSignupRequestDto);
+    @Operation(summary = "App 계정 손님 타입 회원가입")
+    @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseDto<Void> handleAppCustomerSignup(
+            @RequestPart @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
+            @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
+        signupService.handleAppCustomerSignup(appCustomerSignupRequestDto, profileImageFile);
         return ResponseDto.onSuccess();
     }
 
     /**
-     * Kakao 계정 회원가입 요청을 처리하는 메서드
+     * App 계정 사장님 타입 회원가입 요청을 처리하는 메서드
      */
-    @PostMapping("/kakao")
-    @Operation(summary = "Kakao 계정 회원가입")
-    public ResponseDto<Void> handleKakaoSignup(@Valid @RequestBody KakaoSignupRequestDto kakaoSignupRequestDto) {
-        signupService.handleKakaoSignup(kakaoSignupRequestDto);
+    @Operation(summary = "App 계정 사장님 타입 회원가입")
+    @PostMapping(value = "/app/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseDto<Void> handleAppOwnerSignup(
+            @RequestPart @Valid AppOwnerSignupRequestDto appOwnerSignupRequestDto,
+            @RequestPart(value = "storeProfileImageFile", required = false) MultipartFile storeProfileImageFile,
+            @RequestPart(value = "storeFeaturedImageFile", required = false) MultipartFile storeFeaturedImageFile,
+            @RequestPart(value = "storeImageFileList", required = false) List<MultipartFile> storeImageFileList) {
+        signupService.handleAppOwnerSignup(appOwnerSignupRequestDto, storeProfileImageFile,
+                storeFeaturedImageFile, storeImageFileList);
+        return ResponseDto.onSuccess();
+    }
+
+    /**
+     * Kakao 계정 손님타입 회원가입 요청을 처리하는 메서드
+     */
+    @PostMapping(value = "/kakao/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Kakao 계정 손님타입 회원가입")
+    public ResponseDto<Void> handleKakaoCustomerSignup(
+            @RequestPart @Valid KakaoCustomerSignupRequestDto kakaoCustomerSignupRequestDto,
+            @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
+        signupService.handleKakaoCustomerSignup(kakaoCustomerSignupRequestDto, profileImageFile);
+        return ResponseDto.onSuccess();
+    }
+
+    /**
+     * Kakao 계정 사장님 타입 회원가입 요청을 처리하는 메서드
+     */
+    @Operation(summary = "Kakao 계정 사장님 타입 회원가입")
+    @PostMapping(value = "/kakao/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseDto<Void> handleKakaoOwnerSignup(
+            @RequestPart @Valid KakaoOwnerSignupRequestDto kakaoOwnerSignupRequestDto,
+            @RequestPart(value = "storeProfileImageFile", required = false) MultipartFile storeProfileImageFile,
+            @RequestPart(value = "storeFeaturedImageFile", required = false) MultipartFile storeFeaturedImageFile,
+            @RequestPart(value = "storeImageFileList", required = false) List<MultipartFile> storeImageFileList) {
+        signupService.handleKakaoOwnerSignup(kakaoOwnerSignupRequestDto, storeProfileImageFile,
+                storeFeaturedImageFile, storeImageFileList);
         return ResponseDto.onSuccess();
     }
 
@@ -61,6 +96,18 @@ public class SignupController {
     public ResponseDto<Void> handleKakaoSignup(@Valid @RequestBody KakaoLinkSignupRequestDto kakaoLinkSignupRequestDto) {
         signupService.handleKakaoLinkSignup(kakaoLinkSignupRequestDto);
         return ResponseDto.onSuccess();
+    }
+
+    /**
+     * 회원가입 모드 조회 요청을 처리하는 메서드
+     */
+    @GetMapping("/signup/mode")
+    @Operation(summary = "회원가입 모드 조회")
+    public ResponseDto<SignupModeResponseDto> getSignupMode(
+            @Valid @RequestBody SignupModeRequestDto signupModeRequestDto) {
+        SignupModeResponseDto signupModeResponseDto = signupService.getSignupMode(signupModeRequestDto);
+
+        return ResponseDto.onSuccess(signupModeResponseDto);
     }
 
     /**
