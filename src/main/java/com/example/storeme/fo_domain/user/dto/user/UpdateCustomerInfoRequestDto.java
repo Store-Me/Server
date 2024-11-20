@@ -20,10 +20,6 @@ public class UpdateCustomerInfoRequestDto {
     @Pattern(regexp = ValidationConstant.PASSWORD_REGEX, message = ValidationConstant.PASSWORD_MSG)
     private String password;
 
-    @Pattern(regexp = ValidationConstant.VERIFICATION_CODE_REGEX,
-            message = ValidationConstant.VERIFICATION_CODE_MSG)
-    private String verificationCode;
-
     @Length(max = 10, message = ValidationConstant.NICKNAME_MSG)
     private String nickname;
 }
