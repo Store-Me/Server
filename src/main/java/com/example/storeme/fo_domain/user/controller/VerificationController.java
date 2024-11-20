@@ -1,7 +1,6 @@
 package com.example.storeme.fo_domain.user.controller;
 
 import com.example.storeme.fo_domain.user.dto.verification.ConfirmCodeRequestDto;
-import com.example.storeme.fo_domain.user.dto.verification.ConfirmCodeResponseDto;
 import com.example.storeme.fo_domain.user.dto.verification.VerificationCodeRequestDto;
 import com.example.storeme.fo_domain.user.dto.verification.VerificationCodeResponseDto;
 import com.example.storeme.fo_domain.user.service.VerificationService;
@@ -44,12 +43,11 @@ public class VerificationController {
      */
     @Operation(summary = "인증번호 유효성 검사")
     @PostMapping("/confirm")
-    public ResponseDto<ConfirmCodeResponseDto> confirmVerificationCode(
+    public ResponseDto<Void> confirmVerificationCode(
             @Valid @RequestBody ConfirmCodeRequestDto confirmCodeRequestDto) {
 
-        ConfirmCodeResponseDto confirmCodeResponseDto =
-                verificationService.confirmVerificationCode(confirmCodeRequestDto);
+        verificationService.confirmVerificationCode(confirmCodeRequestDto);
 
-        return ResponseDto.onSuccess(confirmCodeResponseDto);
+        return ResponseDto.onSuccess();
     }
 }
