@@ -1,8 +1,13 @@
 package com.example.storeme.fo_domain.user.domain;
 
+import com.example.storeme.fo_domain.customer.domain.Customer;
+import com.example.storeme.fo_domain.store.domain.Store;
 import com.example.storeme.fo_domain.user.constant.RoleType;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "users")
 @NoArgsConstructor
@@ -16,6 +21,13 @@ public class User{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Store> storeList = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "customer_id", unique = true)
+    private Customer customer;
+
     @Column(name = "account_id", length = 20, unique = true)
     private String accountId;
 
@@ -28,12 +40,6 @@ public class User{
     @Column(name = "phone_number", nullable = false, length = 13, unique = true)
     private String phoneNumber;
 
-    @Column(name = "nickname", nullable = false, length = 30)
-    private String nickname;
-
-    @Column(name = "profile_image_url", length = 2048)
-    private String profileImageUrl;
-
     @Column(name = "privacy_consent", nullable = false)
     private Boolean privacyConsent;
 
@@ -43,5 +49,20 @@ public class User{
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false, length = 20)
     private RoleType roleType;
+
+    public void setCustomer(Customer customer){
+        if(this.customer != null){
+            customer.setUser(null);
+        }
+        this.customer = customer;
+        customer.setUser(this);
+    }
+
+    public void addStore(Store store){
+        if (store.getUser() != this) {
+            storeList.add(store);
+            store.setUser(this);
+        }
+    }
 
 }
