@@ -54,8 +54,8 @@ public class SecurityConfig {
                 .logout(LogoutConfigurer::disable)
 
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST,"/signup/**", "/login/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/verification/**").permitAll()
+                        .requestMatchers("/signup/**", "/login/**").permitAll()
+                        .requestMatchers("/verification/**").permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling((exceptionHandlingConfigurer)->
