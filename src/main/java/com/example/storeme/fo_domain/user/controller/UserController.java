@@ -3,9 +3,12 @@ package com.example.storeme.fo_domain.user.controller;
 import com.example.storeme.fo_domain.user.dto.user.*;
 import com.example.storeme.fo_domain.user.service.UserService;
 import com.example.storeme.global.common.annotation.AuthInfo;
+import com.example.storeme.global.common.annotation.SwaggerBody;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +46,8 @@ public class UserController {
 
     }
 
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "updateCustomerInfoRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PatchMapping(value = "/user/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "손님 정보 수정")
     public ResponseDto<Void> updateCustomerInfo(@Parameter(hidden = true) @AuthInfo Long userId,
@@ -56,6 +61,8 @@ public class UserController {
         return ResponseDto.onSuccess();
     }
 
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "storeProfileImageFile", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PatchMapping(value = "/user/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "사장님 정보 수정")
     public ResponseDto<Void> updateOwnerInfo(@Parameter(hidden = true) @AuthInfo Long userId,

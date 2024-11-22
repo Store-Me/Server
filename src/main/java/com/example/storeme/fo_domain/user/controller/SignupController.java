@@ -2,8 +2,11 @@ package com.example.storeme.fo_domain.user.controller;
 
 import com.example.storeme.fo_domain.user.dto.signup.*;
 import com.example.storeme.fo_domain.user.service.SignupService;
+import com.example.storeme.global.common.annotation.SwaggerBody;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +31,8 @@ public class SignupController {
      * App 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "App 계정 손님 타입 회원가입")
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "appCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppCustomerSignup(
             @RequestPart @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
@@ -40,6 +45,8 @@ public class SignupController {
      * App 계정 사장님 타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "App 계정 사장님 타입 회원가입")
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "appOwnerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppOwnerSignup(
             @RequestPart @Valid AppOwnerSignupRequestDto appOwnerSignupRequestDto,
@@ -55,6 +62,8 @@ public class SignupController {
      * Kakao 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
     @PostMapping(value = "/kakao/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "kakaoCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @Operation(summary = "Kakao 계정 손님타입 회원가입")
     public ResponseDto<Void> handleKakaoCustomerSignup(
             @RequestPart @Valid KakaoCustomerSignupRequestDto kakaoCustomerSignupRequestDto,
@@ -67,6 +76,8 @@ public class SignupController {
      * Kakao 계정 사장님 타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "Kakao 계정 사장님 타입 회원가입")
+    @SwaggerBody(content = @Content(
+            encoding = @Encoding(name = "kakaoOwnerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/kakao/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleKakaoOwnerSignup(
             @RequestPart @Valid KakaoOwnerSignupRequestDto kakaoOwnerSignupRequestDto,
