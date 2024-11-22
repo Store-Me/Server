@@ -31,11 +31,11 @@ public class SignupController {
      * App 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "App 계정 손님 타입 회원가입")
-    @SwaggerBody(content = @Content(
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(
             encoding = @Encoding(name = "appCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppCustomerSignup(
-            @RequestPart(name = "appCustomerSignupRequestDto") @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
+            @RequestPart("appCustomerSignupRequestDto") @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
             @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
         signupService.handleAppCustomerSignup(appCustomerSignupRequestDto, profileImageFile);
         return ResponseDto.onSuccess();
