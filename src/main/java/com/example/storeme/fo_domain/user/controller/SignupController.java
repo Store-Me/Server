@@ -38,8 +38,6 @@ public class SignupController {
                             schema = @Schema(implementation = AppCustomerSignupRequestDto.class)
                     )
             ))
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(
-            encoding = @Encoding(name = "appCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppCustomerSignup(
             @RequestPart("appCustomerSignupRequestDto") @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
