@@ -7,6 +7,7 @@ import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,13 @@ public class SignupController {
     /**
      * App 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
-    @Operation(summary = "App 계정 손님 타입 회원가입")
+    @Operation(summary = "App 계정 손님 타입 회원가입",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = AppCustomerSignupRequestDto.class)
+                    )
+            ))
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(
             encoding = @Encoding(name = "appCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
