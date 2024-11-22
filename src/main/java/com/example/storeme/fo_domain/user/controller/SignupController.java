@@ -35,7 +35,7 @@ public class SignupController {
             encoding = @Encoding(name = "appCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppCustomerSignup(
-            @RequestPart @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
+            @RequestPart(name = "appCustomerSignupRequestDto") @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
             @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
         signupService.handleAppCustomerSignup(appCustomerSignupRequestDto, profileImageFile);
         return ResponseDto.onSuccess();
