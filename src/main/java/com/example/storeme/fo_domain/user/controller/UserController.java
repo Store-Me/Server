@@ -46,12 +46,15 @@ public class UserController {
 
     }
 
-    @SwaggerBody(content = @Content(
-            encoding = @Encoding(name = "updateCustomerInfoRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PatchMapping(value = "/user/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "손님 정보 수정")
     public ResponseDto<Void> updateCustomerInfo(@Parameter(hidden = true) @AuthInfo Long userId,
-                                                @RequestPart @Valid
+                                                @RequestPart("updateCustomerInfoRequestDto")
+                                                @Parameter(
+                                                        content = @Content(
+                                                                encoding = @Encoding(name = "updateCustomerInfoRequestDto",
+                                                                        contentType = MediaType.APPLICATION_JSON_VALUE)))
+                                                @Valid
                                                 UpdateCustomerInfoRequestDto updateCustomerInfoRequestDto,
                                                 @RequestPart(value = "profileImageFile", required = false)
                                                     MultipartFile profileImageFile){
@@ -61,12 +64,15 @@ public class UserController {
         return ResponseDto.onSuccess();
     }
 
-    @SwaggerBody(content = @Content(
-            encoding = @Encoding(name = "storeProfileImageFile", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PatchMapping(value = "/user/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "사장님 정보 수정")
     public ResponseDto<Void> updateOwnerInfo(@Parameter(hidden = true) @AuthInfo Long userId,
-                                             @RequestPart @Valid
+                                             @RequestPart("updateOwnerInfoRequestDto")
+                                             @Parameter(
+                                                     content = @Content(
+                                                             encoding = @Encoding(name = "updateOwnerInfoRequestDto",
+                                                                     contentType = MediaType.APPLICATION_JSON_VALUE)))
+                                             @Valid
                                              UpdateOwnerInfoRequestDto updateOwnerInfoRequestDto,
                                              @RequestPart(value = "storeProfileImageFile", required = false)
                                                  MultipartFile storeProfileImageFile){
@@ -79,7 +85,12 @@ public class UserController {
     @PostMapping("/user/customer")
     @Operation(summary = "손님 정보 입력")
     public ResponseDto<Void> saveCustomerInfo(@Parameter(hidden = true) @AuthInfo Long userId,
-                                              @RequestPart @Valid
+                                              @RequestPart("saveCustomerInfoRequestDto")
+                                              @Parameter(
+                                                      content = @Content(
+                                                              encoding = @Encoding(name = "saveCustomerInfoRequestDto",
+                                                                      contentType = MediaType.APPLICATION_JSON_VALUE)))
+                                              @Valid
                                               SaveCustomerInfoRequestDto saveCustomerInfoRequestDto,
                                               @RequestPart(value = "profileImageFile", required = false)
                                                   MultipartFile profileImageFile){

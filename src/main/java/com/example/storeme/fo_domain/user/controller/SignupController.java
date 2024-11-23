@@ -5,6 +5,7 @@ import com.example.storeme.fo_domain.user.service.SignupService;
 import com.example.storeme.global.common.annotation.SwaggerBody;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,11 +33,14 @@ public class SignupController {
      * App 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "App 계정 손님 타입 회원가입")
-    @SwaggerBody(content = @Content(
-            encoding = @Encoding(name = "appCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppCustomerSignup(
-            @RequestPart("appCustomerSignupRequestDto") @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
+            @RequestPart("appCustomerSignupRequestDto")
+            @Parameter(
+                    content = @Content(
+                            encoding = @Encoding(name = "appCustomerSignupRequestDto",
+                                    contentType = MediaType.APPLICATION_JSON_VALUE)))
+             @Valid AppCustomerSignupRequestDto appCustomerSignupRequestDto,
             @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
         signupService.handleAppCustomerSignup(appCustomerSignupRequestDto, profileImageFile);
         return ResponseDto.onSuccess();
@@ -46,11 +50,14 @@ public class SignupController {
      * App 계정 사장님 타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "App 계정 사장님 타입 회원가입")
-    @SwaggerBody(content = @Content(
-            encoding = @Encoding(name = "appOwnerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/app/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleAppOwnerSignup(
-            @RequestPart @Valid AppOwnerSignupRequestDto appOwnerSignupRequestDto,
+            @RequestPart("appOwnerSignupRequestDto")
+            @Parameter(
+                    content = @Content(
+                            encoding = @Encoding(name = "appOwnerSignupRequestDto",
+                                    contentType = MediaType.APPLICATION_JSON_VALUE)))
+            @Valid AppOwnerSignupRequestDto appOwnerSignupRequestDto,
             @RequestPart(value = "storeProfileImageFile", required = false) MultipartFile storeProfileImageFile,
             @RequestPart(value = "storeFeaturedImageFile", required = false) MultipartFile storeFeaturedImageFile,
             @RequestPart(value = "storeImageFileList", required = false) List<MultipartFile> storeImageFileList) {
@@ -63,11 +70,14 @@ public class SignupController {
      * Kakao 계정 손님타입 회원가입 요청을 처리하는 메서드
      */
     @PostMapping(value = "/kakao/customer", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @SwaggerBody(content = @Content(
-            encoding = @Encoding(name = "kakaoCustomerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @Operation(summary = "Kakao 계정 손님타입 회원가입")
     public ResponseDto<Void> handleKakaoCustomerSignup(
-            @RequestPart @Valid KakaoCustomerSignupRequestDto kakaoCustomerSignupRequestDto,
+            @RequestPart("kakaoCustomerSignupRequestDto")
+            @Parameter(
+                    content = @Content(
+                            encoding = @Encoding(name = "kakaoCustomerSignupRequestDto",
+                                    contentType = MediaType.APPLICATION_JSON_VALUE)))
+            @Valid KakaoCustomerSignupRequestDto kakaoCustomerSignupRequestDto,
             @RequestPart(value = "profileImageFile", required = false) MultipartFile profileImageFile) {
         signupService.handleKakaoCustomerSignup(kakaoCustomerSignupRequestDto, profileImageFile);
         return ResponseDto.onSuccess();
@@ -77,11 +87,14 @@ public class SignupController {
      * Kakao 계정 사장님 타입 회원가입 요청을 처리하는 메서드
      */
     @Operation(summary = "Kakao 계정 사장님 타입 회원가입")
-    @SwaggerBody(content = @Content(
-            encoding = @Encoding(name = "kakaoOwnerSignupRequestDto", contentType = MediaType.APPLICATION_JSON_VALUE)))
     @PostMapping(value = "/kakao/owner", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> handleKakaoOwnerSignup(
-            @RequestPart @Valid KakaoOwnerSignupRequestDto kakaoOwnerSignupRequestDto,
+            @RequestPart("kakaoOwnerSignupRequestDto")
+            @Parameter(
+                    content = @Content(
+                            encoding = @Encoding(name = "kakaoOwnerSignupRequestDto",
+                                    contentType = MediaType.APPLICATION_JSON_VALUE)))
+            @Valid KakaoOwnerSignupRequestDto kakaoOwnerSignupRequestDto,
             @RequestPart(value = "storeProfileImageFile", required = false) MultipartFile storeProfileImageFile,
             @RequestPart(value = "storeFeaturedImageFile", required = false) MultipartFile storeFeaturedImageFile,
             @RequestPart(value = "storeImageFileList", required = false) List<MultipartFile> storeImageFileList) {
