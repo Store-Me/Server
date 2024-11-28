@@ -60,6 +60,9 @@ dependencies {
 	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
+	//JsonNullable
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.1'
+
 	// cool sms 설정
 	implementation 'net.nurigo:sdk:4.3.0'
 }
