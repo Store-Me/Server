@@ -5,7 +5,8 @@ import com.example.storeme.fo_domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "customer_infos")
+@Entity
+@Table(name = "customer_infos")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
