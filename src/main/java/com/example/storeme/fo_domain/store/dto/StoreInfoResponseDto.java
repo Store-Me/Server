@@ -22,7 +22,7 @@ public class StoreInfoResponseDto {
 
     private String storeFeaturedImageUrl;
 
-    private List<StoreImageDto> storeImageDtoList;
+    private List<StoreImageInfoDto> storeImageInfoList;
 
     private String storeBannerImageUrl;
 
@@ -50,7 +50,7 @@ public class StoreInfoResponseDto {
 
     @Getter
     @Builder
-    public static class StoreImageDto {
+    public static class StoreImageInfoDto {
         private Long storeImageId;
         private String storeImageUrl;
         private Integer order;
