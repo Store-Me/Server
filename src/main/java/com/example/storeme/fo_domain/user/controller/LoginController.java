@@ -4,7 +4,6 @@ import com.example.storeme.fo_domain.user.dto.user.AppLoginRequestDto;
 import com.example.storeme.fo_domain.user.dto.user.JwtResponseDto;
 import com.example.storeme.fo_domain.user.dto.user.KakaoLoginRequestDto;
 import com.example.storeme.fo_domain.user.service.LoginService;
-import com.example.storeme.fo_domain.user.service.UserService;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
