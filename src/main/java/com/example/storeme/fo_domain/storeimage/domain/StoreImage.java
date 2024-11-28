@@ -5,7 +5,8 @@ import com.example.storeme.fo_domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity(name = "store_images")
+@Entity
+@Table(name = "store_images")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -23,4 +24,7 @@ public class StoreImage {
 
     @Column(name = "store_image_url", nullable = false, length = 2048)
     private String imageUrl;
+
+    @Column(name = "store_image_order", nullable = false)
+    private Integer order;
 }
