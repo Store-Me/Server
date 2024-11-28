@@ -30,6 +30,7 @@ import static com.example.storeme.fo_domain.user.dto.signup.SignupModeResponseDt
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 /**
  * 회원가입 관련 기능을 처리하는 서비스 클래스
@@ -87,12 +88,10 @@ public class SignupService {
 
         String storeProfileImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
         String storeFeaturedImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_IMAGE, storeFeaturedImageFile);
-        List<StoreImage> storeImageFileUrlList = Objects.requireNonNull(
-                        imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList),
-                        "uploadImageFileList returned null")
-                .stream()
-                .map(imageUrl -> StoreImage.builder()
-                        .imageUrl(imageUrl)
+        List<StoreImage> storeImageFileUrlList = IntStream.range(0, storeImageFileList.size())
+                .mapToObj(index -> StoreImage.builder()
+                        .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
+                        .order(index)
                         .build())
                 .toList();
 
@@ -117,7 +116,7 @@ public class SignupService {
                 .locationDetail(appOwnerSignupRequestDto.getStoreLocationDetail())
                 .lat(appOwnerSignupRequestDto.getStoreLat())
                 .lng(appOwnerSignupRequestDto.getStoreLng())
-                .phoneNumber(appOwnerSignupRequestDto.getPhoneNumber())
+                .phoneNumber(appOwnerSignupRequestDto.getStorePhoneNumber())
                 .intro(appOwnerSignupRequestDto.getStoreIntro())
                 .build();
 
@@ -170,12 +169,10 @@ public class SignupService {
 
         String storeProfileImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
         String storeFeaturedImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_IMAGE, storeFeaturedImageFile);
-        List<StoreImage> storeImageFileUrlList = Objects.requireNonNull(
-                        imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList),
-                        "uploadImageFileList returned null")
-                .stream()
-                .map(imageUrl -> StoreImage.builder()
-                        .imageUrl(imageUrl)
+        List<StoreImage> storeImageFileUrlList = IntStream.range(0, storeImageFileList.size())
+                .mapToObj(index -> StoreImage.builder()
+                        .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
+                        .order(index)
                         .build())
                 .toList();
 
@@ -199,7 +196,7 @@ public class SignupService {
                 .locationDetail(kakaoOwnerSignupRequestDto.getStoreLocationDetail())
                 .lat(kakaoOwnerSignupRequestDto.getStoreLat())
                 .lng(kakaoOwnerSignupRequestDto.getStoreLng())
-                .phoneNumber(kakaoOwnerSignupRequestDto.getPhoneNumber())
+                .phoneNumber(kakaoOwnerSignupRequestDto.getStorePhoneNumber())
                 .intro(kakaoOwnerSignupRequestDto.getStoreIntro())
                 .build();
 
