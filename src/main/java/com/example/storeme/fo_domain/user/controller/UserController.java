@@ -3,7 +3,6 @@ package com.example.storeme.fo_domain.user.controller;
 import com.example.storeme.fo_domain.user.dto.user.*;
 import com.example.storeme.fo_domain.user.service.UserService;
 import com.example.storeme.global.common.annotation.AuthInfo;
-import com.example.storeme.global.common.annotation.SwaggerBody;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
