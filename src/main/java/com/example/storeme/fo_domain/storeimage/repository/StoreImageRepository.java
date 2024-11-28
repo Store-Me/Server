@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface StoreImageRepository extends JpaRepository<StoreImage, Long> {
+    boolean existsByIdAndStoreId(Long storeImageId, Long storeId);
 }
