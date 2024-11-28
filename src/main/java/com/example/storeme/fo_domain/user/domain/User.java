@@ -9,7 +9,8 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
