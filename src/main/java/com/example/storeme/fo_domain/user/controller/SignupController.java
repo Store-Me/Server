@@ -2,13 +2,11 @@ package com.example.storeme.fo_domain.user.controller;
 
 import com.example.storeme.fo_domain.user.dto.signup.*;
 import com.example.storeme.fo_domain.user.service.SignupService;
-import com.example.storeme.global.common.annotation.SwaggerBody;
 import com.example.storeme.global.common.dto.ResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
