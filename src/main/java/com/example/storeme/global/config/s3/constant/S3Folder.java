@@ -10,6 +10,7 @@ public enum S3Folder {
     CUSTOMER_PROFILE_IMAGE("customer-profile-image/"),
     STORE_PROFILE_IMAGE("store-profile-image/"),
     STORE_IMAGE("store-image/"),
+    STORE_BANNER_IMAGE("store-banner-image/"),
     MENU_IMAGE("menu-image/"),
     COUPON_IMAGE("coupon-image/");
 
