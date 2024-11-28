@@ -47,9 +47,9 @@ public class StoreController {
      * 가게 정보 조회 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 정보 조회")
-    @GetMapping
+    @GetMapping("/{storeId}")
     public ResponseDto<StoreInfoResponseDto> getStoreInfo(@Parameter(hidden = true) @AuthInfo Long userId,
-                                                          @NotNull @RequestParam Long storeId) {
+                                                          @NotNull @PathVariable Long storeId) {
 
         StoreInfoResponseDto storeInfoResponseDto = storeService.getStoreInfo(userId, storeId);
         return ResponseDto.onSuccess(storeInfoResponseDto);
@@ -100,9 +100,9 @@ public class StoreController {
      * 가게 정보 삭제 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 정보 삭제")
-    @DeleteMapping
+    @DeleteMapping("/{storeId}")
     public ResponseDto<Void> deleteStoreInfo(@Parameter(hidden = true) @AuthInfo Long userId,
-                                             @NotNull @RequestParam Long storeId) {
+                                             @NotNull @PathVariable Long storeId) {
 
         storeService.deleteStoreInfo(userId, storeId);
         return ResponseDto.onSuccess();

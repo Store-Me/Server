@@ -34,10 +34,10 @@ public class UserController {
         return ResponseDto.onSuccess(customerInfoResponseDto);
     }
 
-    @GetMapping("/user/owner")
+    @GetMapping("/user/owner/{storeId}")
     @Operation(summary = "사장님 정보 조회")
     public ResponseDto<OwnerInfoResponseDto> getOwnerInfo(@Parameter(hidden = true) @AuthInfo Long userId,
-                                      @RequestParam Long storeId){
+                                      @PathVariable Long storeId){
 
         OwnerInfoResponseDto ownerInfoResponseDto = userService.getOwnerInfo(userId, storeId);
 

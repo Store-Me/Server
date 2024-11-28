@@ -30,9 +30,9 @@ public class StoreImageController {
      * 가게 이미지 저장 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 이미지 저장")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{storeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseDto<Void> saveStoreImage(@Parameter(hidden = true) @AuthInfo Long userId,
-                                           @NotNull @RequestParam Long storeId,
+                                           @NotNull @PathVariable Long storeId,
                                            @RequestPart(value = "storeImageFileList", required = false)
                                            List<MultipartFile> storeImageFileList) {
 
@@ -44,10 +44,10 @@ public class StoreImageController {
      * 가게 이미지 삭제 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 이미지 삭제")
-    @DeleteMapping
+    @DeleteMapping("/{storeId}/{storeImageId}")
     public ResponseDto<Void> deleteStoreImage(@Parameter(hidden = true) @AuthInfo Long userId,
-                                              @NotNull @RequestParam Long storeId,
-                                              @NotNull @RequestParam Long storeImageId) {
+                                              @NotNull @PathVariable Long storeId,
+                                              @NotNull @PathVariable Long storeImageId) {
 
         storeImageService.deleteStoreImageFile(userId, storeId, storeImageId);
         return ResponseDto.onSuccess();
@@ -57,7 +57,7 @@ public class StoreImageController {
      * 가게 이미지 순서 값 수정 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 이미지 순서 수정")
-    @PatchMapping
+    @PatchMapping("/order")
     public ResponseDto<Void> updateStoreImageOrder(@Parameter(hidden = true) @AuthInfo Long userId,
                                                    @Valid @RequestBody
                                                    UpdateStoreImageOrderRequestDto updateStoreImageOrderRequestDto){
