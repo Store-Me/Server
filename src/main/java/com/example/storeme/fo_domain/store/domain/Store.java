@@ -9,7 +9,8 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "store_infos")
+@Entity
+@Table(name = "store_infos")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
