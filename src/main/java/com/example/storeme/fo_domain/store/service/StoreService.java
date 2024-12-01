@@ -52,7 +52,7 @@ public class StoreService {
     @Transactional(readOnly = true)
     public StoreInfoResponseDto getStoreInfo(Long userId, Long storeId){
 
-        if(!storeRepository.existsByIdAndUserId(storeId, userId)){
+        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
             log.error("The store is not for the user");
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }
@@ -144,7 +144,7 @@ public class StoreService {
                                 MultipartFile storeProfileImageFile,
                                 MultipartFile storeBannerImageFile){
 
-        if(!storeRepository.existsByIdAndUserId(updateStoreInfoRequestDto.getStoreId(), userId)){
+        if(!storeRepository.existsByIdAndUser_Id(updateStoreInfoRequestDto.getStoreId(), userId)){
             log.error("The store is not for the user");
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }
@@ -237,7 +237,7 @@ public class StoreService {
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }
 
-        if(!storeRepository.existsByIdAndUserId(storeId, userId)){
+        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
             log.error("The store is not for the user");
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }

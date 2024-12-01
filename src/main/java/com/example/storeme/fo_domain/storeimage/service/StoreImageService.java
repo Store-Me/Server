@@ -1,7 +1,6 @@
 package com.example.storeme.fo_domain.storeimage.service;
 
 import com.example.storeme.fo_domain.store.domain.Store;
-import com.example.storeme.fo_domain.store.exception.StoreException;
 import com.example.storeme.fo_domain.store.repository.StoreRepository;
 import com.example.storeme.fo_domain.storeimage.domain.StoreImage;
 import com.example.storeme.fo_domain.storeimage.dto.UpdateStoreImageOrderRequestDto;
@@ -33,7 +32,7 @@ public class StoreImageService {
      */
     @Transactional
     public void saveStoreImageFile(Long userId, Long storeId, List<MultipartFile> storeImageFileList){
-        if(!storeRepository.existsByIdAndUserId(storeId, userId)){
+        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
             log.error("The store is not for the user");
             throw new StoreImageException(ErrorStatus._BAD_REQUEST);
         }
@@ -60,12 +59,12 @@ public class StoreImageService {
      */
     @Transactional
     public void deleteStoreImageFile(Long userId, Long storeId, Long storeImageId){
-        if(!storeRepository.existsByIdAndUserId(storeId, userId)){
+        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
             log.error("The store is not for the user");
             throw new StoreImageException(ErrorStatus._BAD_REQUEST);
         }
 
-        if(!storeImageRepository.existsByIdAndStoreId(storeImageId, storeId)){
+        if(!storeImageRepository.existsByIdAndStore_Id(storeImageId, storeId)){
             log.error("The storeImage is not for the store");
             throw new StoreImageException(ErrorStatus._BAD_REQUEST);
         }
@@ -82,7 +81,7 @@ public class StoreImageService {
 
         Long storeId = updateStoreImageOrderRequestDto.getStoreId();
 
-        if(!storeRepository.existsByIdAndUserId(storeId, userId)){
+        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
             log.error("The store is not for the user");
             throw new StoreImageException(ErrorStatus._BAD_REQUEST);
         }
@@ -91,7 +90,7 @@ public class StoreImageService {
                 .forEach(storeImageOrderInfoDto -> {
                     Long storeImageId = storeImageOrderInfoDto.getStoreImageId();
 
-                    if(!storeImageRepository.existsByIdAndStoreId(storeImageId, storeId)){
+                    if(!storeImageRepository.existsByIdAndStore_Id(storeImageId, storeId)){
                         log.error("The storeImage is not for the store");
                         throw new StoreImageException(ErrorStatus._BAD_REQUEST);
                     }
