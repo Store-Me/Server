@@ -57,7 +57,7 @@ public class StoreMenuCategoryController {
      * 가게 메뉴 카테고리 순서 수정 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 메뉴 카테고리의 순서 수정")
-    @PostMapping("/order")
+    @PatchMapping("/order")
     public ResponseDto<Void> updateStoreMenuCategoryOrder(@Parameter(hidden = true) @AuthInfo Long userId,
                                                                          @RequestBody
                                                                          @Valid
