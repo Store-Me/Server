@@ -1,5 +1,6 @@
 package com.example.storeme.fo_domain.store.domain;
 
+import com.example.storeme.fo_domain.storemenu.domain.StoreMenuCategory;
 import com.example.storeme.fo_domain.storeimage.domain.StoreImage;
 import com.example.storeme.fo_domain.user.constant.StoreCategory;
 import com.example.storeme.fo_domain.user.domain.User;
@@ -28,6 +29,9 @@ public class Store {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImageList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoreMenuCategory> storeMenuCategoryList = new ArrayList<>();
 
     @Column(name = "store_name", nullable = false, length = 60, unique = true)
     private String name;
@@ -85,5 +89,12 @@ public class Store {
 
     public void addStoreImageList(List<StoreImage> storeImageList){
         storeImageList.forEach(this::addStoreImage);
+    }
+
+    public void addStoreMenuCategory(StoreMenuCategory storeMenuCategory){
+        if (storeMenuCategory.getStore() != this) {
+            storeMenuCategoryList.add(storeMenuCategory);
+            storeMenuCategory.setStore(this);
+        }
     }
 }
