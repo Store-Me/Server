@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface StoreRepository extends JpaRepository<Store, Long> {
 
-    boolean existsByIdAndUserId(Long storeId, Long userId);
+    boolean existsByIdAndUser_Id(Long storeId, Long userId);
 
     @Query("SELECT new com.example.storeme.fo_domain.store.dto.StoreInfoListResponseDto$StoreInfoDto " +
             "(s.id, s.name, s.profileImageUrl) " +
