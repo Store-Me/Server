@@ -1,6 +1,6 @@
-package com.example.storeme.fo_domain.storeimage.annotation.validator;
+package com.example.storeme.global.common.annotation.validator;
 
-import com.example.storeme.fo_domain.storeimage.annotation.ValidOrder;
+import com.example.storeme.global.common.annotation.ValidOrder;
 import com.example.storeme.fo_domain.storeimage.dto.UpdateStoreImageOrderRequestDto;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
