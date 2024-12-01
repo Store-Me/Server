@@ -1,6 +1,6 @@
 package com.example.storeme.fo_domain.storeimage.dto;
 
-import com.example.storeme.fo_domain.storeimage.annotation.ValidOrder;
+import com.example.storeme.global.common.annotation.ValidOrder;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
