@@ -19,7 +19,7 @@ public class StoreImage {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "store_id")
+    @JoinColumn(name = "store_infos_id")
     private Store store;
 
     @Column(name = "store_image_url", nullable = false, length = 2048)
