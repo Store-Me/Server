@@ -62,7 +62,7 @@ public class Store {
     @Column(name = "store_location_code", nullable = false)
     private Long locationCode;
 
-    @Column(name = "store_location_detail", length = 300)
+    @Column(name = "store_location_address", length = 300)
     private String locationAddress;
 
     @Column(name = "store_location_detail", length = 300)
