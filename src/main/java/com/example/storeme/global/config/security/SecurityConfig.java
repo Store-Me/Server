@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**")
                 .requestMatchers("/swagger","/v3/**")
                 .requestMatchers("/error/**")
-                .requestMatchers(HttpMethod.GET, "/");
+                .requestMatchers(HttpMethod.GET, "/")
+                .requestMatchers("/html/**");
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
