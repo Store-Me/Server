@@ -41,6 +41,9 @@ public class UpdateStoreInfoRequestDto {
     private JsonNullable<Long> storeLocationCode = JsonNullable.undefined();
 
     @CustomLength(max = 100)
+    private JsonNullable<String> storeLocationAddress = JsonNullable.undefined();
+
+    @CustomLength(max = 100)
     private JsonNullable<String> storeLocationDetail = JsonNullable.undefined();
 
     private JsonNullable<Double> storeLat = JsonNullable.undefined();

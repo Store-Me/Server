@@ -34,6 +34,9 @@ public class SaveStoreInfoRequestDto {
     private Long storeLocationCode;
 
     @Length(max = 100)
+    private String storeLocationAddress;
+
+    @Length(max = 100)
     private String storeLocationDetail;
 
     private Double storeLat;

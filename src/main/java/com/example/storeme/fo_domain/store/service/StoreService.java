@@ -67,7 +67,7 @@ public class StoreService {
                 .storeProfileImageUrl(store.getProfileImageUrl())
                 .storeFeaturedImageUrl(store.getFeaturedImageUrl())
                 .storeImageInfoList(store.getStoreImageList().stream()
-                        .map((storeImage)-> StoreInfoResponseDto.StoreImageInfoDto.builder()
+                        .map(storeImage -> StoreInfoResponseDto.StoreImageInfoDto.builder()
                                 .storeImageId(storeImage.getId())
                                 .storeImageUrl(storeImage.getImageUrl())
                                 .order(storeImage.getOrder())
@@ -80,6 +80,7 @@ public class StoreService {
                 .storeDetailCategory(store.getDetailCategory())
                 .storeLocation(store.getLocation())
                 .storeLocationCode(store.getLocationCode())
+                .storeLocationAddress(store.getLocationAddress())
                 .storeLocationDetail(store.getLocationDetail())
                 .storeLat(store.getLat())
                 .storeLng(store.getLng())
@@ -124,6 +125,7 @@ public class StoreService {
                 .detailCategory(saveStoreInfoRequestDto.getStoreDetailCategory())
                 .location(saveStoreInfoRequestDto.getStoreLocation())
                 .locationCode(saveStoreInfoRequestDto.getStoreLocationCode())
+                .locationAddress(saveStoreInfoRequestDto.getStoreLocationAddress())
                 .locationDetail(saveStoreInfoRequestDto.getStoreLocationDetail())
                 .lat(saveStoreInfoRequestDto.getStoreLat())
                 .lng(saveStoreInfoRequestDto.getStoreLng())
@@ -205,6 +207,9 @@ public class StoreService {
 
         if(updateStoreInfoRequestDto.getStoreLocationCode().isPresent())
             store.setLocationCode(updateStoreInfoRequestDto.getStoreLocationCode().get());
+
+        if(updateStoreInfoRequestDto.getStoreLocationAddress().isPresent())
+            store.setLocationAddress(updateStoreInfoRequestDto.getStoreLocationAddress().get());
 
         if(updateStoreInfoRequestDto.getStoreLocationDetail().isPresent())
             store.setLocationDetail(updateStoreInfoRequestDto.getStoreLocationDetail().get());

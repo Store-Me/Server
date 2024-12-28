@@ -36,6 +36,8 @@ public class StoreInfoResponseDto {
 
     private Long storeLocationCode;
 
+    private String storeLocationAddress;
+
     private String storeLocationDetail;
 
     private Double storeLat;

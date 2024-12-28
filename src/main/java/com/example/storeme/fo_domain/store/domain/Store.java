@@ -63,6 +63,9 @@ public class Store {
     private Long locationCode;
 
     @Column(name = "store_location_detail", length = 300)
+    private String locationAddress;
+
+    @Column(name = "store_location_detail", length = 300)
     private String locationDetail;
 
     @Column(name = "store_lat")
