@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+
+<div id="layer" style="display:block;position:fixed;overflow:hidden;z-index:1;-webkit-overflow-scrolling:touch;">
+</div>
+
+<!-- 다음 우편번호 API 호출 -->
+<script src="http://dmaps.daum.net/map_js_init/postcode.v2.js"></script>
+<script>
+  // theme 객체 정의
+  const themeObj = {
+    bgColor: "#F7F7F7",          // 바탕 배경색
+    contentBgColor: "#FFFFFF",   // 본문 배경색
+    textColor: "#000000",        // 기본 글자색
+    postcodeTextColor: "#FF5733",// 우편번호 강조 색상
+    emphTextColor: "#0068B7",    // 강조 텍스트 색상
+    outlineColor: "#E0E0E0"      // 테두리 색상
+  };
+
+  // 우편번호 찾기 화면을 넣을 element
+  var element_layer = document.getElementById('layer');
+
+  function sample2_execDaumPostcode() {
+    new daum.Postcode({
+      oncomplete: function(data) {
+        // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+        var fullRoadAddr = data.roadAddress;
+        var extraRoadAddr = '';
+
+        if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+          extraRoadAddr += data.bname;
+        }
+        if (data.buildingName !== '' && data.apartment === 'Y') {
+          extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+        }
+        if (extraRoadAddr !== '') {
+          extraRoadAddr = ' (' + extraRoadAddr + ')';
+        }
+        if (fullRoadAddr !== '') {
+          fullRoadAddr += extraRoadAddr;
+        }
+
+        // 주소만 필요하므로 이것만 전송(안드로이드 함수나 다른 곳으로)
+        window.StoreMe.processDATA(fullRoadAddr);
+      },
+      width : '100%',
+      height : '100%',
+      theme : themeObj   // ← 여기서 theme 설정
+    }).embed(element_layer);
+
+    // iframe을 넣은 element를 보이게 한다.
+    element_layer.style.display = 'block';
+    initLayerPosition();
+  }
+
+  // 레이어 위치 조정 함수
+  function initLayerPosition(){
+    var width = (window.innerWidth || document.documentElement.clientWidth);
+    var height = (window.innerHeight || document.documentElement.clientHeight);
+    var borderWidth = 5; //샘플에서 사용하는 border의 두께
+
+    element_layer.style.width = width + 'px';
+    element_layer.style.height = height + 'px';
+    element_layer.style.border = borderWidth + 'px solid';
+    element_layer.style.left = (((window.innerWidth || document.documentElement.clientWidth) - width)/2 - borderWidth) + 'px';
+    element_layer.style.top = (((window.innerHeight || document.documentElement.clientHeight) - height)/2 - borderWidth) + 'px';
+  }
+</script>
+</body>
+</html>
