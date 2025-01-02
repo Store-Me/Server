@@ -26,29 +26,24 @@
   function sample2_execDaumPostcode() {
     new daum.Postcode({
       oncomplete: function(data) {
-        // 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-        var fullRoadAddr = data.roadAddress;
-        var extraRoadAddr = '';
+        // 법정동과 도로명 주소 추출
+        var roadAddress = data.roadAddress;  // 도로명 주소
+        var legalDong = data.bname || "";    // 법정동 (없으면 빈 문자열)
+        var sigunguCode = data.sigunguCode || ""; //시군구코드
 
-        if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-          extraRoadAddr += data.bname;
-        }
-        if (data.buildingName !== '' && data.apartment === 'Y') {
-          extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
-        }
-        if (extraRoadAddr !== '') {
-          extraRoadAddr = ' (' + extraRoadAddr + ')';
-        }
-        if (fullRoadAddr !== '') {
-          fullRoadAddr += extraRoadAddr;
-        }
+        // 데이터를 JSON 형식으로 가공
+        var addressData = JSON.stringify({
+          roadAddress: roadAddress,
+          legalDong: legalDong,
+          sigunguCode: sigunguCode
+        });
 
-        // 주소만 필요하므로 이것만 전송(안드로이드 함수나 다른 곳으로)
-        window.StoreMe.processDATA(fullRoadAddr);
+        // JSON 데이터를 안드로이드로 전달
+        window.StoreMe.processDATA(addressData);
       },
-      width : '100%',
-      height : '100%',
-      theme : themeObj   // ← 여기서 theme 설정
+      width: '100%',
+      height: '100%',
+      theme: themeObj   //테마 설정
     }).embed(element_layer);
 
     // iframe을 넣은 element를 보이게 한다.
