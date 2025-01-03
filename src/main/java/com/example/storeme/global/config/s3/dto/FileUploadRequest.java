@@ -52,6 +52,7 @@ public class FileUploadRequest {
 
     // 파일 확장자 검증
     private static boolean isAllowedExtensions(String filename) {
+        log.info("original filename: {}", filename);
         int fileExtensionStartIndex = filename.lastIndexOf(".") + 1;
         String extension = filename.substring(fileExtensionStartIndex).toLowerCase();
         return FileExtension.contains(extension);
