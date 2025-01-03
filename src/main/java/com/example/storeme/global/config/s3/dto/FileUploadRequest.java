@@ -1,7 +1,7 @@
 package com.example.storeme.global.config.s3.dto;
 
 import com.example.storeme.global.common.code.status.ErrorStatus;
-import com.example.storeme.global.config.s3.constant.FileExtension;
+import com.example.storeme.global.config.s3.constant.FileContentType;
 import com.example.storeme.global.config.s3.constant.S3Folder;
 import com.example.storeme.global.config.s3.exception.ImageFileException;
 import lombok.Builder;
@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,19 +42,17 @@ public class FileUploadRequest {
                 log.debug("filename is empty");
                 throw new ImageFileException(ErrorStatus._BAD_REQUEST);
             }
-            if (!isAllowedExtensions(file.getOriginalFilename())) {
-                log.debug("filename extension is not allowed");
+            if (!isAllowedContentType(file.getContentType())) {
+                log.debug("file content type is not allowed");
                 throw new ImageFileException(ErrorStatus._BAD_REQUEST);
             }
         }
     }
 
     // 파일 확장자 검증
-    private static boolean isAllowedExtensions(String filename) {
-        log.info("original filename: {}", filename);
-        int fileExtensionStartIndex = filename.lastIndexOf(".") + 1;
-        String extension = filename.substring(fileExtensionStartIndex).toLowerCase();
-        return FileExtension.contains(extension);
+    private static boolean isAllowedContentType(String contentType) {
+        log.info("file content type for upload: {}", contentType);
+        return FileContentType.contains(contentType);
     }
 
     public FileCreateDto toModel() {
