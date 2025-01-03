@@ -91,7 +91,8 @@ public class Store {
     }
 
     public void addStoreImageList(List<StoreImage> storeImageList){
-        storeImageList.forEach(this::addStoreImage);
+        if(storeImageList != null)
+            storeImageList.forEach(this::addStoreImage);
     }
 
     public void addStoreMenuCategory(StoreMenuCategory storeMenuCategory){

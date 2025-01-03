@@ -88,12 +88,6 @@ public class SignupService {
 
         String storeProfileImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
         String storeFeaturedImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_IMAGE, storeFeaturedImageFile);
-        List<StoreImage> storeImageFileUrlList = IntStream.range(0, storeImageFileList.size())
-                .mapToObj(index -> StoreImage.builder()
-                        .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
-                        .order(index)
-                        .build())
-                .toList();
 
         User user = User.builder()
                 .accountId(appOwnerSignupRequestDto.getAccountId())
@@ -122,7 +116,16 @@ public class SignupService {
 
         user.addStore(store);
 
-        store.addStoreImageList(storeImageFileUrlList);
+        if(!storeImageFileList.isEmpty()){
+            List<StoreImage> storeImageList = IntStream.range(0, storeImageFileList.size())
+                    .mapToObj(index -> StoreImage.builder()
+                            .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
+                            .order(index)
+                            .build())
+                    .toList();
+
+            store.addStoreImageList(storeImageList);
+        }
 
         userRepository.save(user);
     }
@@ -169,12 +172,6 @@ public class SignupService {
 
         String storeProfileImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
         String storeFeaturedImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_IMAGE, storeFeaturedImageFile);
-        List<StoreImage> storeImageFileUrlList = IntStream.range(0, storeImageFileList.size())
-                .mapToObj(index -> StoreImage.builder()
-                        .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
-                        .order(index)
-                        .build())
-                .toList();
 
         User user = User.builder()
                 .kakaoId(kakaoOwnerSignupRequestDto.getKakaoId())
@@ -202,7 +199,16 @@ public class SignupService {
 
         user.addStore(store);
 
-        store.addStoreImageList(storeImageFileUrlList);
+        if(!storeImageFileList.isEmpty()){
+            List<StoreImage> storeImageList = IntStream.range(0, storeImageFileList.size())
+                    .mapToObj(index -> StoreImage.builder()
+                            .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
+                            .order(index)
+                            .build())
+                    .toList();
+
+            store.addStoreImageList(storeImageList);
+        }
 
         userRepository.save(user);
     }
