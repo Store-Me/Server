@@ -18,6 +18,6 @@ import java.time.LocalDateTime;
 public class JwtResponseDto {
     private String accessToken;
     private String refreshToken;
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiredTime;
 }
