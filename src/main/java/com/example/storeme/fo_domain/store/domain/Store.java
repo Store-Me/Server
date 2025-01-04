@@ -28,9 +28,11 @@ public class Store {
     private User user;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<StoreImage> storeImageList = new ArrayList<>();
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<StoreMenuCategory> storeMenuCategoryList = new ArrayList<>();
 
     @Column(name = "store_name", nullable = false, length = 60, unique = true)
