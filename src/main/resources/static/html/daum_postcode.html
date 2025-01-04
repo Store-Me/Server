@@ -29,12 +29,18 @@
         // 법정동과 도로명 주소 추출
         var roadAddress = data.roadAddress;  // 도로명 주소
         var legalDong = data.bname || "";    // 법정동 (없으면 빈 문자열)
-        var sigunguCode = data.sigunguCode || ""; //시군구코드
+        var administrativeDong = data.hname || "";  //행정동
+        var sigunguCode = data.sigunguCode || "";   //시군구코드
+
+        if(data.buildingName !== '') {
+          roadAddress += ' (' + data.buildingName + ')';
+        }
 
         // 데이터를 JSON 형식으로 가공
         var addressData = JSON.stringify({
           roadAddress: roadAddress,
           legalDong: legalDong,
+          administrativeDong: administrativeDong,
           sigunguCode: sigunguCode
         });
 
