@@ -1,6 +1,5 @@
 package com.example.storeme.global.common.annotation.argumentresolver;
 
-import com.example.storeme.fo_domain.user.domain.User;
 import com.example.storeme.global.common.annotation.AuthInfo;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
@@ -23,6 +22,16 @@ public class AuthInfoArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory)  {
         HttpServletRequest req = (HttpServletRequest) webRequest.getNativeRequest();
-        return req.getAttribute("userId");
+        String userId = (String) req.getAttribute("userId");
+
+        if (userId != null) {
+            try {
+                return Long.valueOf(userId);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("userId must be a valid number");
+            }
+        }
+
+        return null;
     }
 }

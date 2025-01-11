@@ -59,13 +59,15 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
 
+            String roleType = claims.get("roleType", String.class);
+
             return JwtUserDto.builder()
-                    .userId(claims.getSubject())
-                    .roleType(claims.get("roleType", RoleType.class))
+                    .userId(claims.get("userId", String.class))
+                    .roleType(RoleType.valueOf(roleType))
                     .build();
 
         } catch (Exception exception) {
-            log.error("Access Token is invalid.");
+            log.error("Access Token is invalid.", exception);
             throw new JwtAuthenticationException(ErrorStatus._UNAUTHORIZED);
         }
     }
@@ -79,7 +81,7 @@ public class JwtUtil {
                     .getBody();
 
             return JwtUserDto.builder()
-                    .userId(claims.getSubject())
+                    .userId(claims.get("userId", String.class))
                     .roleType(claims.get("roleType", RoleType.class))
                     .build();
         } catch (Exception exception) {
@@ -132,11 +134,11 @@ public class JwtUtil {
     // JWT Token 생성 로직
     private String createToken(JwtUserDto jwtUserDto, Long tokenExpiration) {
         Claims claims = Jwts.claims();
+        claims.put("userId", jwtUserDto.getUserId());
         claims.put("roleType", jwtUserDto.getRoleType());
         Date tokenExpiresIn = new Date(new Date().getTime() + tokenExpiration);
 
         return Jwts.builder()
-                .setSubject(jwtUserDto.getUserId())
                 .setClaims(claims)
                 .setIssuedAt(new Date())
                 .setExpiration(tokenExpiresIn)

@@ -1,7 +1,6 @@
 package com.example.storeme.global.config.security;
 
 import com.example.storeme.fo_domain.user.constant.RoleType;
-import com.example.storeme.fo_domain.user.domain.User;
 import com.example.storeme.global.common.dto.JwtUserDto;
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
