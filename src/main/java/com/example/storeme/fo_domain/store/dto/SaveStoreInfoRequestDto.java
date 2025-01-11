@@ -1,6 +1,7 @@
 package com.example.storeme.fo_domain.store.dto;
 
 import com.example.storeme.fo_domain.user.constant.StoreCategory;
+import com.example.storeme.fo_domain.user.validator.ValidStoreNumber;
 import com.example.storeme.global.common.constant.ValidationConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -43,8 +44,7 @@ public class SaveStoreInfoRequestDto {
 
     private Double storeLng;
 
-    @Pattern(regexp = ValidationConstant.PHONE_NUMBER_REGEX,
-            message = ValidationConstant.PHONE_NUMBER_MSG)
+    @ValidStoreNumber
     private String storePhoneNumber;
 
     @Length(max = 100)

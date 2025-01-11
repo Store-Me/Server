@@ -2,6 +2,7 @@ package com.example.storeme.fo_domain.user.dto.signup;
 
 import com.example.storeme.fo_domain.user.constant.StoreCategory;
 import com.example.storeme.fo_domain.user.validator.TrueOnly;
+import com.example.storeme.fo_domain.user.validator.ValidStoreNumber;
 import com.example.storeme.global.common.constant.ValidationConstant;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -62,8 +63,7 @@ public class KakaoOwnerSignupRequestDto {
 
     private Double storeLng;
 
-    @Pattern(regexp = ValidationConstant.PHONE_NUMBER_REGEX,
-            message = ValidationConstant.PHONE_NUMBER_MSG)
+    @ValidStoreNumber
     private String storePhoneNumber;
 
     @Length(max = 100)
