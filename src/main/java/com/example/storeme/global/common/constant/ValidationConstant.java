@@ -7,6 +7,11 @@ public class ValidationConstant {
     public static final String PHONE_NUMBER_REGEX = "^01[016789]\\d{8}$";
     public static final String PHONE_NUMBER_MSG = "잘못된 전화번호 형식입니다.";
 
+    public static final String SAFE_NUMBER_PATTERN = "^050\\d{1}\\d{8}$"; // 안심번호
+    public static final String MOBILE_PHONE_PATTERN = "^010\\d{8}$"; // 휴대전화번호
+    public static final String INTERNET_PHONE_PATTERN = "^070\\d{8}$"; // 인터넷전화번호
+    public static final String LANDLINE_PHONE_PATTERN = "^\\d{6,8}$"; // 유선전화번호 (지역번호 제외)
+
     public static final String VERIFICATION_CODE_REGEX = "^[a-zA-Z0-9]{6}$";
     public static final String VERIFICATION_CODE_MSG = "잘못된 인증코드 형식입니다.";
 
