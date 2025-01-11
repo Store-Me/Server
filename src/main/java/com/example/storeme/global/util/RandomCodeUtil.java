@@ -11,12 +11,12 @@ import java.security.SecureRandom;
 @Component
 @RequiredArgsConstructor
 public class RandomCodeUtil {
-    private static final String CHARACTERS = "0123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ";
+    private static final String CHARACTERS = "0123456789";
     private static final int CHARACTERS_LENGTH = CHARACTERS.length();
     private static final SecureRandom random = new SecureRandom();
 
     /**
-     * 길이를 매개변수로 소문자, 대문자, 숫자를 조합한 랜덤한 코드를 생성한다
+     * 길이를 매개변수로 숫자를 조합한 랜덤한 코드를 생성한다
      */
     public String generateRandomCode(int codeLength) {
         StringBuilder code = new StringBuilder(codeLength);
