@@ -1,6 +1,5 @@
 package com.example.storeme.fo_domain.user.dto.user;
 
-import com.example.storeme.fo_domain.user.constant.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +19,8 @@ public class CustomerInfoResponseDto {
     private String phoneNumber;
 
     private String profileImageUrl;
+
+    private String nickname;
 
     private Boolean hasAppId;
 

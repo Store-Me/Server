@@ -45,6 +45,7 @@ public class UserService {
                 .accountId(user.getAccountId())
                 .phoneNumber(user.getPhoneNumber())
                 .profileImageUrl(customer != null ? customer.getProfileImageUrl() : null)
+                .nickname(customer != null ? customer.getNickname() : null)
                 .hasAppId(user.getAccountId()!=null)
                 .hasKakaoId(user.getKakaoId()!=null)
                 .build();
