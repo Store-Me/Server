@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import static com.example.storeme.fo_domain.user.constant.SignupType.KAKAO;
@@ -116,10 +117,11 @@ public class SignupService {
 
         user.addStore(store);
 
-        if(!storeImageFileList.isEmpty()){
+        if(!ObjectUtils.isEmpty(storeImageFileList) && !storeImageFileList.isEmpty()){
+            List<String> uploadedUrlList = imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList);
             List<StoreImage> storeImageList = IntStream.range(0, storeImageFileList.size())
                     .mapToObj(index -> StoreImage.builder()
-                            .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
+                            .imageUrl(uploadedUrlList.get(index))
                             .order(index)
                             .build())
                     .toList();
@@ -199,10 +201,11 @@ public class SignupService {
 
         user.addStore(store);
 
-        if(!storeImageFileList.isEmpty()){
+        if(!ObjectUtils.isEmpty(storeImageFileList) && !storeImageFileList.isEmpty()){
+            List<String> uploadedUrlList = imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList);
             List<StoreImage> storeImageList = IntStream.range(0, storeImageFileList.size())
                     .mapToObj(index -> StoreImage.builder()
-                            .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
+                            .imageUrl(uploadedUrlList.get(index))
                             .order(index)
                             .build())
                     .toList();
