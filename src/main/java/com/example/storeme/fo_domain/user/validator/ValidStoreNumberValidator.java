@@ -10,6 +10,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.springframework.util.ObjectUtils;
 
 public class ValidStoreNumberValidator implements ConstraintValidator<ValidStoreNumber, String> {
 
@@ -20,6 +21,10 @@ public class ValidStoreNumberValidator implements ConstraintValidator<ValidStore
 
     @Override
     public boolean isValid(String input, ConstraintValidatorContext context) {
+
+        if(ObjectUtils.isEmpty(input)){
+            return true;
+        }
 
         // 안심번호 검증
         if (Pattern.matches(SAFE_NUMBER_PATTERN, input)) {
