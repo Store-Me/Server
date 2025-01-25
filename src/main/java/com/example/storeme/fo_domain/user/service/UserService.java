@@ -44,7 +44,7 @@ public class UserService {
         return CustomerInfoResponseDto.builder()
                 .accountId(user.getAccountId())
                 .phoneNumber(user.getPhoneNumber())
-                .profileImageUrl(customer.getProfileImageUrl())
+                .profileImageUrl(customer != null ? customer.getProfileImageUrl() : null)
                 .hasAppId(user.getAccountId()!=null)
                 .hasKakaoId(user.getKakaoId()!=null)
                 .build();
