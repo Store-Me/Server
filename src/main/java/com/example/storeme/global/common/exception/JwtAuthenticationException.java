@@ -15,4 +15,5 @@ public class JwtAuthenticationException extends AuthenticationException {
         super(errorCode.getErrorMsg());
         this.errorCode=errorCode;
     }
+
 }
