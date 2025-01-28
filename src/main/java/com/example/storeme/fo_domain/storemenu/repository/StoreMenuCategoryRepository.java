@@ -20,7 +20,7 @@ public interface StoreMenuCategoryRepository extends JpaRepository<StoreMenuCate
             "WHERE smc.order > :order AND smc.store.id = :storeId")
     void decrementOrdersGreaterThan(@Param("order") Integer order, @Param("storeId") Long storeId);
 
-    @Query("SELECT new com.example.storeme.fo_domain.storemenu.dto.StoreMenuCategoryListResponseDto.StoreMenuCategoryInfoDto " +
+    @Query("SELECT new com.example.storeme.fo_domain.storemenu.dto.StoreMenuCategoryListResponseDto$StoreMenuCategoryInfoDto " +
             "(s.id, s.category, s.order) " +
             "FROM StoreMenuCategory s WHERE s.store.id = :storeId")
     List<StoreMenuCategoryInfoDto> findStoreMenuCategoryInfoByUserId(@Param("storeId") Long storeId);

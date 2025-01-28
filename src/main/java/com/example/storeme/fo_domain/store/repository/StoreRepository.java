@@ -12,7 +12,7 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
 
     boolean existsByIdAndUser_Id(Long storeId, Long userId);
 
-    @Query("SELECT new com.example.storeme.fo_domain.store.dto.StoreInfoListResponseDto.StoreInfoDto " +
+    @Query("SELECT new com.example.storeme.fo_domain.store.dto.StoreInfoListResponseDto$StoreInfoDto " +
             "(s.id, s.name, s.profileImageUrl) " +
             "FROM Store s WHERE s.user.id = :userId")
     List<StoreInfoListResponseDto.StoreInfoDto> findStoreInfoByUserId(@Param("userId") Long userId);
