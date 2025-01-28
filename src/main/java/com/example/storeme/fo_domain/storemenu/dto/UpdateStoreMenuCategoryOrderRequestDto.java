@@ -1,11 +1,9 @@
 package com.example.storeme.fo_domain.storemenu.dto;
 
 import com.example.storeme.global.common.annotation.ValidOrder;
-import com.example.storeme.fo_domain.storeimage.dto.UpdateStoreImageOrderRequestDto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
@@ -18,7 +16,7 @@ public class UpdateStoreMenuCategoryOrderRequestDto {
     @NotNull
     private Long storeId;
 
-    @ValidOrder
+    @ValidOrder(orderExtractorMethod = "getStoreMenuCategoryOrder")
     List<StoreMenuCategoryOrderInfoDto> storeMenuCategoryOrderInfoList;
 
     @Getter

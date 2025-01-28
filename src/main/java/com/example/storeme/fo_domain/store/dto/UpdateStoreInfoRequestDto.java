@@ -5,6 +5,8 @@ import com.example.storeme.global.common.annotation.CustomLength;
 import com.example.storeme.global.common.annotation.CustomNotNull;
 import com.example.storeme.global.common.annotation.CustomPattern;
 import com.example.storeme.global.common.constant.ValidationConstant;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.openapitools.jackson.nullable.JsonNullable;
@@ -16,7 +18,8 @@ import org.openapitools.jackson.nullable.JsonNullable;
 @NoArgsConstructor
 public class UpdateStoreInfoRequestDto {
 
-    @CustomNotNull
+    @NotNull
+    @Positive
     private Long storeId;
 
     @CustomNotNull

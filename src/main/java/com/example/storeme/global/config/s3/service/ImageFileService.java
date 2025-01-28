@@ -6,6 +6,7 @@ import com.example.storeme.global.config.s3.dto.FileUploadRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -41,7 +42,7 @@ public class ImageFileService {
     }
 
     public void deleteImageFile(String imageFileUrl){
-        if(imageFileUrl.isEmpty())
+        if(ObjectUtils.isEmpty(imageFileUrl))
             return;
         s3BucketService.deleteFile(imageFileUrl);
     }

@@ -16,4 +16,6 @@ public @interface ValidOrder {
     String message() default "Order values must start from 0 and be consecutive.";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
+
+    String orderExtractorMethod();
 }

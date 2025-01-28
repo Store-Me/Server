@@ -1,6 +1,7 @@
 package com.example.storeme.fo_domain.storemenu.controller;
 
 import com.example.storeme.fo_domain.storemenu.dto.SaveStoreMenuCategoryRequestDto;
+import com.example.storeme.fo_domain.storemenu.dto.StoreMenuCategoryListResponseDto;
 import com.example.storeme.fo_domain.storemenu.dto.UpdateStoreMenuCategoryNameRequestDto;
 import com.example.storeme.fo_domain.storemenu.dto.UpdateStoreMenuCategoryOrderRequestDto;
 import com.example.storeme.fo_domain.storemenu.service.StoreMenuCategoryService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,14 +28,27 @@ public class StoreMenuCategoryController {
     private final StoreMenuCategoryService storeMenuCategoryService;
 
     /**
+     * 가게 메뉴 카테고리 정보 조회를 처리하는 메서드
+     */
+    @Operation(summary = "가게 메뉴 카테고리 전체 조회")
+    @GetMapping
+    public ResponseDto<StoreMenuCategoryListResponseDto> getStoreMenuCategoryList(@Parameter(hidden = true) @AuthInfo Long userId,
+            @RequestParam @Positive Long storeId) {
+        StoreMenuCategoryListResponseDto storeMenuCategoryListResponseDto =
+                storeMenuCategoryService.getStoreMenuCategoryList(userId, storeId);
+
+        return ResponseDto.onSuccess(storeMenuCategoryListResponseDto);
+    }
+
+    /**
      * 가게 메뉴 카테고리 저장 요청을 처리하는 메서드
      */
     @Operation(summary = "가게 메뉴 카테고리 저장")
     @PostMapping
     public ResponseDto<Void> saveStoreMenuCategory(@Parameter(hidden = true) @AuthInfo Long userId,
-                                                                         @RequestBody
-                                                                         @Valid
-                                                                         SaveStoreMenuCategoryRequestDto requestDto) {
+            @RequestBody
+            @Valid
+            SaveStoreMenuCategoryRequestDto requestDto) {
 
         storeMenuCategoryService.saveStoreMenuCategory(userId, requestDto);
         return ResponseDto.onSuccess();
@@ -45,9 +60,9 @@ public class StoreMenuCategoryController {
     @Operation(summary = "가게 메뉴 카테고리의 이름 수정")
     @PatchMapping("/name")
     public ResponseDto<Void> updateStoreMenuCategoryName(@Parameter(hidden = true) @AuthInfo Long userId,
-                                                                        @RequestBody
-                                                                        @Valid
-                                                                        UpdateStoreMenuCategoryNameRequestDto requestDto) {
+            @RequestBody
+            @Valid
+            UpdateStoreMenuCategoryNameRequestDto requestDto) {
 
         storeMenuCategoryService.updateStoreMenuCategoryName(userId, requestDto);
         return ResponseDto.onSuccess();
@@ -59,9 +74,9 @@ public class StoreMenuCategoryController {
     @Operation(summary = "가게 메뉴 카테고리의 순서 수정")
     @PatchMapping("/order")
     public ResponseDto<Void> updateStoreMenuCategoryOrder(@Parameter(hidden = true) @AuthInfo Long userId,
-                                                                         @RequestBody
-                                                                         @Valid
-                                                                         UpdateStoreMenuCategoryOrderRequestDto requestDto) {
+            @RequestBody
+            @Valid
+            UpdateStoreMenuCategoryOrderRequestDto requestDto) {
 
         storeMenuCategoryService.updateStoreMenuCategoryOrder(userId, requestDto);
         return ResponseDto.onSuccess();
@@ -73,8 +88,8 @@ public class StoreMenuCategoryController {
     @Operation(summary = "가게 메뉴 카테고리 삭제")
     @DeleteMapping("/{storeId}/{storeMenuCategoryId}")
     public ResponseDto<Void> deleteStoreMenuCategory(@Parameter(hidden = true) @AuthInfo Long userId,
-                                                     @PathVariable @NotNull Long storeId,
-                                                     @PathVariable @NotNull Long storeMenuCategoryId) {
+            @PathVariable @NotNull Long storeId,
+            @PathVariable @NotNull Long storeMenuCategoryId) {
 
         storeMenuCategoryService.deleteStoreMenuCategory(userId, storeId, storeMenuCategoryId);
         return ResponseDto.onSuccess();
