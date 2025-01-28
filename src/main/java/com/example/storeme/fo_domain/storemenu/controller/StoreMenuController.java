@@ -44,10 +44,10 @@ public class StoreMenuController {
      * 가게 메뉴 정보 조회를 처리하는 메서드
      */
     @Operation(summary = "가게 메뉴 전체 조회")
-    @GetMapping
+    @GetMapping("/{storeId}/{storeMenuCategoryId}")
     public ResponseDto<StoreMenuListResponseDto> getStoreMenuList(@Parameter(hidden = true) @AuthInfo Long userId,
-            @RequestParam @Positive Long storeId,
-            @RequestParam @Positive Long storeMenuCategoryId) {
+            @PathVariable @Positive Long storeId,
+            @PathVariable @Positive Long storeMenuCategoryId) {
         StoreMenuListResponseDto storeMenuListResponseDto =
                 storeMenuService.getStoreMenuList(userId, storeId, storeMenuCategoryId);
 

@@ -31,9 +31,9 @@ public class StoreMenuCategoryController {
      * 가게 메뉴 카테고리 정보 조회를 처리하는 메서드
      */
     @Operation(summary = "가게 메뉴 카테고리 전체 조회")
-    @GetMapping
+    @GetMapping("/{storeId}")
     public ResponseDto<StoreMenuCategoryListResponseDto> getStoreMenuCategoryList(@Parameter(hidden = true) @AuthInfo Long userId,
-            @RequestParam @Positive Long storeId) {
+            @PathVariable @Positive Long storeId) {
         StoreMenuCategoryListResponseDto storeMenuCategoryListResponseDto =
                 storeMenuCategoryService.getStoreMenuCategoryList(userId, storeId);
 

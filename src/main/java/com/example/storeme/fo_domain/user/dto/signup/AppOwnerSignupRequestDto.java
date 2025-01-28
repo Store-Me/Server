@@ -61,6 +61,10 @@ public class AppOwnerSignupRequestDto {
     @NotNull
     private Long storeLocationCode;
 
+    @NotNull
+    @Length(max = 100)
+    private String storeLocationAddress;
+
     @Length(max = 100)
     private String storeLocationDetail;
 
