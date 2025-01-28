@@ -17,7 +17,7 @@ public class UpdateStoreImageOrderRequestDto {
     @NotNull
     private Long storeId;
 
-    @ValidOrder
+    @ValidOrder(orderExtractorMethod = "getStoreImageOrder")
     List<StoreImageOrderInfoDto> storeImageOrderInfoList;
 
     @Getter

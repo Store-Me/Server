@@ -48,10 +48,10 @@ public class StoreMenu {
     @Column(name = "fixed_price")
     private Integer fixedPrice;
 
-    @Column(name = "fixed_price")
+    @Column(name = "rangeMaxPrice")
     private Integer rangeMaxPrice;
 
-    @Column(name = "fixed_price")
+    @Column(name = "rangeMinPrice")
     private Integer rangeMinPrice;
 
     @Column(name = "menu_image_url", length = 2048)
