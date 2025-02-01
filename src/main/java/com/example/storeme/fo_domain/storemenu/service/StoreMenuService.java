@@ -1,5 +1,6 @@
 package com.example.storeme.fo_domain.storemenu.service;
 
+import com.example.storeme.fo_domain.store.domain.Store;
 import com.example.storeme.fo_domain.store.repository.StoreRepository;
 import com.example.storeme.fo_domain.storemenu.domain.StoreMenu;
 import com.example.storeme.fo_domain.storemenu.domain.StoreMenuCategory;
@@ -64,23 +65,39 @@ public class StoreMenuService {
             throw new StoreMenuException(ErrorStatus._BAD_REQUEST);
         }
 
-        if (!storeMenuCategoryRepository.existsByIdAndStore_Id(
+        if (requestDto.storeMenuCategoryId() != null &&
+                !storeMenuCategoryRepository.existsByIdAndStore_Id(
                 requestDto.storeMenuCategoryId(), requestDto.storeId())) {
             log.error("The StoreMenuCategory is not for the store");
             throw new StoreMenuException(ErrorStatus._BAD_REQUEST);
         }
 
-        StoreMenuCategory storeMenuCategory = storeMenuCategoryRepository.findById(requestDto.storeMenuCategoryId())
-                .orElseThrow(() -> {
-                    log.error("StoreMenuCategory not found with id: {}", requestDto.storeMenuCategoryId());
-                    return new StoreMenuException(ErrorStatus._BAD_REQUEST);
-                });
+        StoreMenuCategory storeMenuCategory;
+        if(requestDto.storeMenuCategoryId() != null) {
+            storeMenuCategory =
+                    storeMenuCategoryRepository.findById(requestDto.storeMenuCategoryId())
+                            .orElseThrow(() -> {
+                                log.error("StoreMenuCategory not found with id: {}", requestDto.storeMenuCategoryId());
+                                return new StoreMenuException(ErrorStatus._BAD_REQUEST);
+                            });
+        }
+        else{
+            Store store = storeRepository.findById(requestDto.storeId()).orElseThrow(() -> {
+                log.error("Store not found with id: {}", requestDto.storeId());
+                return new StoreMenuException(ErrorStatus._BAD_REQUEST);
+            });
+            storeMenuCategory = storeMenuCategoryRepository.findById(store.getDefaultMenuCategoryId()).orElseThrow(() -> {
+                log.error("StoreMenuCategory not found with id: {}", store.getDefaultMenuCategoryId());
+                return new StoreMenuException(ErrorStatus._BAD_REQUEST);
+            });
+        }
+
 
         String menuImageFileUrl = imageFileService.uploadImageFile(S3Folder.MENU_IMAGE, storeMenuImageFile);
 
         storeMenuCategory.addStoreMenu(StoreMenu.builder()
                 .name(requestDto.name())
-                .order(requestDto.order())
+                .order(storeMenuCategory.getStoreMenuList().size())
                 .priceType(requestDto.priceType())
                 .fixedPrice(requestDto.fixedPrice())
                 .rangeMaxPrice(requestDto.rangeMaxPrice())
@@ -129,8 +146,6 @@ public class StoreMenuService {
 
         if(requestDto.name().isPresent())
             storeMenu.setName(requestDto.name().get());
-        if(requestDto.order().isPresent())
-            storeMenu.setOrder(requestDto.order().get());
         if(requestDto.priceType().isPresent())
             storeMenu.setPriceType(requestDto.priceType().get());
         if(requestDto.fixedPrice().isPresent())
@@ -153,7 +168,7 @@ public class StoreMenuService {
     }
 
     @Transactional
-    public void updateStoreMenuCategoryOrder(Long userId, UpdateStoreMenuOrderRequestDto requestDto) {
+    public void updateStoreMenuOrder(Long userId, UpdateStoreMenuOrderRequestDto requestDto) {
         if (!storeRepository.existsByIdAndUser_Id(requestDto.storeId(), userId)) {
             log.error("The store is not for the user");
             throw new StoreMenuException(ErrorStatus._BAD_REQUEST);

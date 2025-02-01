@@ -3,6 +3,8 @@ package com.example.storeme.fo_domain.user.service;
 import com.example.storeme.fo_domain.customer.domain.Customer;
 import com.example.storeme.fo_domain.store.domain.Store;
 import com.example.storeme.fo_domain.storeimage.domain.StoreImage;
+import com.example.storeme.fo_domain.storemenu.domain.StoreMenuCategory;
+import com.example.storeme.fo_domain.storemenu.repository.StoreMenuCategoryRepository;
 import com.example.storeme.fo_domain.user.constant.RoleType;
 import com.example.storeme.fo_domain.user.constant.VerificationProperty;
 import com.example.storeme.fo_domain.user.domain.User;
@@ -45,6 +47,8 @@ public class SignupService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final StringRedisUtil stringRedisUtil;
     private final ImageFileService imageFileService;
+    private final StoreMenuCategoryRepository storeMenuCategoryRepository;
+    private static final String DEFAULT_STORE_CATEGORY = "기본 카테고리";
 
     /**
      * App 계정 손님타입 회원가입 요청을 처리하는 메서드
@@ -115,6 +119,13 @@ public class SignupService {
                 .phoneNumber(appOwnerSignupRequestDto.getStorePhoneNumber())
                 .intro(appOwnerSignupRequestDto.getStoreIntro())
                 .build();
+
+        StoreMenuCategory storeMenuCategory = StoreMenuCategory.builder()
+                .category(DEFAULT_STORE_CATEGORY)
+                .order(0)
+                .build();
+        storeMenuCategoryRepository.save(storeMenuCategory);
+        store.addStoreMenuCategory(storeMenuCategory);
 
         user.addStore(store);
 
@@ -200,6 +211,13 @@ public class SignupService {
                 .phoneNumber(kakaoOwnerSignupRequestDto.getStorePhoneNumber())
                 .intro(kakaoOwnerSignupRequestDto.getStoreIntro())
                 .build();
+
+        StoreMenuCategory storeMenuCategory = StoreMenuCategory.builder()
+                .category(DEFAULT_STORE_CATEGORY)
+                .order(0)
+                .build();
+        storeMenuCategoryRepository.save(storeMenuCategory);
+        store.addStoreMenuCategory(storeMenuCategory);
 
         user.addStore(store);
 

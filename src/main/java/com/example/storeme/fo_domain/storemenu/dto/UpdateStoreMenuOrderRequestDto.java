@@ -15,6 +15,6 @@ public record UpdateStoreMenuOrderRequestDto(
     public record StoreMenuOrderInfoDto(
             @NotNull @Positive Long storeMenuId,
             @NotNull @Positive Integer order
-    ){
+    ) {
     }
 }

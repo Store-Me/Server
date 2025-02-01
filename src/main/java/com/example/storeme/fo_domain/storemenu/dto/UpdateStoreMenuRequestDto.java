@@ -13,7 +13,6 @@ public record UpdateStoreMenuRequestDto(
         @NotNull @Positive Long storeMenuCategoryId,
         @NotNull @Positive Long storeMenuId,
         @CustomLength(max = 15) JsonNullable<String> name,
-        @CustomMin(0) JsonNullable<Integer> order,
         @CustomNotNull JsonNullable<MenuPriceType> priceType,
         @CustomMin(0) JsonNullable<Integer> fixedPrice,
         @CustomMin(0) JsonNullable<Integer> rangeMaxPrice,
@@ -25,7 +24,6 @@ public record UpdateStoreMenuRequestDto(
 ) {
     public UpdateStoreMenuRequestDto {
         name = JsonNullable.undefined();
-        order = JsonNullable.undefined();
         priceType = JsonNullable.undefined();
         fixedPrice = JsonNullable.undefined();
         rangeMaxPrice = JsonNullable.undefined();

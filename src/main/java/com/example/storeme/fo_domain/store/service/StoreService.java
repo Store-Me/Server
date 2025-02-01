@@ -9,6 +9,8 @@ import com.example.storeme.fo_domain.store.exception.StoreException;
 import com.example.storeme.fo_domain.store.repository.StoreRepository;
 import com.example.storeme.fo_domain.storeimage.domain.StoreImage;
 import com.example.storeme.fo_domain.storeimage.repository.StoreImageRepository;
+import com.example.storeme.fo_domain.storemenu.domain.StoreMenuCategory;
+import com.example.storeme.fo_domain.storemenu.repository.StoreMenuCategoryRepository;
 import com.example.storeme.fo_domain.user.domain.User;
 import com.example.storeme.fo_domain.user.exception.UserException;
 import com.example.storeme.fo_domain.user.repository.UserRepository;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Comparator;
@@ -34,12 +37,14 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final StoreImageRepository storeImageRepository;
     private final ImageFileService imageFileService;
+    private static final String DEFAULT_STORE_CATEGORY = "기본 카테고리";
+    private final StoreMenuCategoryRepository storeMenuCategoryRepository;
 
     /**
      * 유저가 관리하는 가게 정보 리스트를 반환하는 메서드
      */
     @Transactional(readOnly = true)
-    public StoreInfoListResponseDto getStoreInfoList(Long userId){
+    public StoreInfoListResponseDto getStoreInfoList(Long userId) {
 
         return StoreInfoListResponseDto.builder()
                 .storeInfoList(storeRepository.findStoreInfoByUserId(userId))
@@ -50,14 +55,14 @@ public class StoreService {
      * 가게 정보를 반환하는 메서드
      */
     @Transactional(readOnly = true)
-    public StoreInfoResponseDto getStoreInfo(Long userId, Long storeId){
+    public StoreInfoResponseDto getStoreInfo(Long userId, Long storeId) {
 
-        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
+        if (!storeRepository.existsByIdAndUser_Id(storeId, userId)) {
             log.error("The store is not for the user");
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }
 
-        Store store = storeRepository.findById(storeId).orElseThrow(()->{
+        Store store = storeRepository.findById(storeId).orElseThrow(() -> {
             log.error("Store not found with id: {}", storeId);
             return new StoreException(ErrorStatus._BAD_REQUEST);
         });
@@ -95,25 +100,20 @@ public class StoreService {
      */
     @Transactional
     public void saveStoreInfo(Long userId, SaveStoreInfoRequestDto saveStoreInfoRequestDto,
-                              MultipartFile storeProfileImageFile,
-                              MultipartFile storeFeaturedImageFile,
-                              List<MultipartFile> storeImageFileList,
-                              MultipartFile storeBannerImageFile){
+            MultipartFile storeProfileImageFile,
+            MultipartFile storeFeaturedImageFile,
+            List<MultipartFile> storeImageFileList,
+            MultipartFile storeBannerImageFile) {
 
-        User user = userRepository.findById(userId).orElseThrow(()->{
+        User user = userRepository.findById(userId).orElseThrow(() -> {
             log.error("User not found with id: {}", userId);
             return new UserException(ErrorStatus._BAD_REQUEST);
         });
 
         String storeProfileImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
         String storeFeaturedImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_IMAGE, storeFeaturedImageFile);
-        List<StoreImage> storeImageFileUrlList = IntStream.range(0, storeImageFileList.size())
-                .mapToObj(index -> StoreImage.builder()
-                        .imageUrl(imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList).get(index))
-                        .order(index)
-                        .build())
-                .toList();
         String storeBannerImageFileUrl = imageFileService.uploadImageFile(S3Folder.STORE_BANNER_IMAGE, storeBannerImageFile);
+
 
         Store store = Store.builder()
                 .name(saveStoreInfoRequestDto.getStoreName())
@@ -134,7 +134,25 @@ public class StoreService {
                 .notice(saveStoreInfoRequestDto.getStoreNotice())
                 .build();
 
-        store.addStoreImageList(storeImageFileUrlList);
+        if (!ObjectUtils.isEmpty(storeImageFileList) && !storeImageFileList.isEmpty()) {
+            List<String> uploadedUrlList = imageFileService.uploadImageFileList(S3Folder.STORE_IMAGE, storeImageFileList);
+            List<StoreImage> storeImageList = IntStream.range(0, storeImageFileList.size())
+                    .mapToObj(index -> StoreImage.builder()
+                            .imageUrl(uploadedUrlList.get(index))
+                            .order(index)
+                            .build())
+                    .toList();
+
+            store.addStoreImageList(storeImageList);
+        }
+
+        StoreMenuCategory storeMenuCategory = StoreMenuCategory.builder()
+                .category(DEFAULT_STORE_CATEGORY)
+                .order(0)
+                .build();
+        storeMenuCategoryRepository.save(storeMenuCategory);
+        store.addStoreMenuCategory(storeMenuCategory);
+
         user.addStore(store);
     }
 
@@ -143,22 +161,22 @@ public class StoreService {
      */
     @Transactional
     public void updateStoreInfo(Long userId, UpdateStoreInfoRequestDto updateStoreInfoRequestDto,
-                                MultipartFile storeProfileImageFile,
-                                MultipartFile storeBannerImageFile){
+            MultipartFile storeProfileImageFile,
+            MultipartFile storeBannerImageFile) {
 
-        if(!storeRepository.existsByIdAndUser_Id(updateStoreInfoRequestDto.getStoreId(), userId)){
+        if (!storeRepository.existsByIdAndUser_Id(updateStoreInfoRequestDto.getStoreId(), userId)) {
             log.error("The store is not for the user");
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }
 
-        Store store = storeRepository.findById(updateStoreInfoRequestDto.getStoreId()).orElseThrow(()->{
+        Store store = storeRepository.findById(updateStoreInfoRequestDto.getStoreId()).orElseThrow(() -> {
             log.error("Store not found with id: {}", updateStoreInfoRequestDto.getStoreId());
             return new StoreException(ErrorStatus._BAD_REQUEST);
         });
 
-        if(storeProfileImageFile != null && storeProfileImageFile.isEmpty())
+        if (storeProfileImageFile != null && storeProfileImageFile.isEmpty())
             store.setProfileImageUrl(null);
-        else if(storeProfileImageFile != null){
+        else if (storeProfileImageFile != null) {
             String storeProfileImageFileUrl = imageFileService.uploadImageFile(
                     S3Folder.STORE_PROFILE_IMAGE, storeProfileImageFile);
             imageFileService.deleteImageFile(store.getProfileImageUrl());
@@ -166,9 +184,9 @@ public class StoreService {
             store.setProfileImageUrl(storeProfileImageFileUrl);
         }
 
-        if(storeBannerImageFile != null && storeBannerImageFile.isEmpty())
+        if (storeBannerImageFile != null && storeBannerImageFile.isEmpty())
             store.setBannerImageUrl(null);
-        else if(storeBannerImageFile != null){
+        else if (storeBannerImageFile != null) {
             String storeBannerImageFileUrl = imageFileService.uploadImageFile(
                     S3Folder.STORE_BANNER_IMAGE, storeBannerImageFile
             );
@@ -178,55 +196,55 @@ public class StoreService {
         }
 
 
-        if(updateStoreInfoRequestDto.getStoreName().isPresent())
+        if (updateStoreInfoRequestDto.getStoreName().isPresent())
             store.setName(updateStoreInfoRequestDto.getStoreName().get());
 
-        if(updateStoreInfoRequestDto.getStoreDescription().isPresent())
+        if (updateStoreInfoRequestDto.getStoreDescription().isPresent())
             store.setDescription(updateStoreInfoRequestDto.getStoreDescription().get());
 
-        if(updateStoreInfoRequestDto.getStoreCategory().isPresent())
+        if (updateStoreInfoRequestDto.getStoreCategory().isPresent())
             store.setCategory(updateStoreInfoRequestDto.getStoreCategory().get());
 
-        if(updateStoreInfoRequestDto.getStoreDetailCategory().isPresent())
+        if (updateStoreInfoRequestDto.getStoreDetailCategory().isPresent())
             store.setDetailCategory(updateStoreInfoRequestDto.getStoreDetailCategory().get());
 
-        if(updateStoreInfoRequestDto.getStoreFeaturedImageId().isPresent()){
-            if(updateStoreInfoRequestDto.getStoreFeaturedImageId().get() == null)
+        if (updateStoreInfoRequestDto.getStoreFeaturedImageId().isPresent()) {
+            if (updateStoreInfoRequestDto.getStoreFeaturedImageId().get() == null)
                 store.setFeaturedImageUrl(null);
             else
                 store.setFeaturedImageUrl(
                         storeImageRepository.findById(updateStoreInfoRequestDto.getStoreFeaturedImageId().get())
-                                .orElseThrow(()->{
+                                .orElseThrow(() -> {
                                     log.error("Store image not found for id: {}", updateStoreInfoRequestDto.getStoreFeaturedImageId().get());
                                     return new StoreException(ErrorStatus._BAD_REQUEST);
                                 }).getImageUrl());
         }
 
-        if(updateStoreInfoRequestDto.getStoreLocation().isPresent())
+        if (updateStoreInfoRequestDto.getStoreLocation().isPresent())
             store.setLocation(updateStoreInfoRequestDto.getStoreLocation().get());
 
-        if(updateStoreInfoRequestDto.getStoreLocationCode().isPresent())
+        if (updateStoreInfoRequestDto.getStoreLocationCode().isPresent())
             store.setLocationCode(updateStoreInfoRequestDto.getStoreLocationCode().get());
 
-        if(updateStoreInfoRequestDto.getStoreLocationAddress().isPresent())
+        if (updateStoreInfoRequestDto.getStoreLocationAddress().isPresent())
             store.setLocationAddress(updateStoreInfoRequestDto.getStoreLocationAddress().get());
 
-        if(updateStoreInfoRequestDto.getStoreLocationDetail().isPresent())
+        if (updateStoreInfoRequestDto.getStoreLocationDetail().isPresent())
             store.setLocationDetail(updateStoreInfoRequestDto.getStoreLocationDetail().get());
 
-        if(updateStoreInfoRequestDto.getStoreLat().isPresent())
+        if (updateStoreInfoRequestDto.getStoreLat().isPresent())
             store.setLat(updateStoreInfoRequestDto.getStoreLat().get());
 
-        if(updateStoreInfoRequestDto.getStoreLng().isPresent())
+        if (updateStoreInfoRequestDto.getStoreLng().isPresent())
             store.setLng(updateStoreInfoRequestDto.getStoreLng().get());
 
-        if(updateStoreInfoRequestDto.getStorePhoneNumber().isPresent())
+        if (updateStoreInfoRequestDto.getStorePhoneNumber().isPresent())
             store.setPhoneNumber(updateStoreInfoRequestDto.getStorePhoneNumber().get());
 
-        if(updateStoreInfoRequestDto.getStoreIntro().isPresent())
+        if (updateStoreInfoRequestDto.getStoreIntro().isPresent())
             store.setIntro(updateStoreInfoRequestDto.getStoreIntro().get());
 
-        if(updateStoreInfoRequestDto.getStoreNotice().isPresent())
+        if (updateStoreInfoRequestDto.getStoreNotice().isPresent())
             store.setNotice(updateStoreInfoRequestDto.getStoreNotice().get());
 
     }
@@ -235,14 +253,14 @@ public class StoreService {
      * 가게 정보를 삭제하는 메서드
      */
     @Transactional
-    public void deleteStoreInfo(Long userId, Long storeId){
+    public void deleteStoreInfo(Long userId, Long storeId) {
 
-        if(!storeRepository.existsById(storeId)){
+        if (!storeRepository.existsById(storeId)) {
             log.error("Store not found with id: {}", storeId);
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }
 
-        if(!storeRepository.existsByIdAndUser_Id(storeId, userId)){
+        if (!storeRepository.existsByIdAndUser_Id(storeId, userId)) {
             log.error("The store is not for the user");
             throw new StoreException(ErrorStatus._BAD_REQUEST);
         }

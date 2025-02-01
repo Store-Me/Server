@@ -100,7 +100,7 @@ public class StoreMenuController {
             @Valid
             UpdateStoreMenuOrderRequestDto requestDto) {
 
-        storeMenuService.updateStoreMenuCategoryOrder(userId, requestDto);
+        storeMenuService.updateStoreMenuOrder(userId, requestDto);
         return ResponseDto.onSuccess();
     }
 

@@ -1,7 +1,6 @@
 package com.example.storeme.fo_domain.storeimage.domain;
 
 import com.example.storeme.fo_domain.store.domain.Store;
-import com.example.storeme.fo_domain.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -8,9 +8,8 @@ import org.hibernate.validator.constraints.Length;
 
 public record SaveStoreMenuRequestDto(
         @NotNull @Positive Long storeId,
-        @NotNull @Positive Long storeMenuCategoryId,
+        @Positive Long storeMenuCategoryId,
         @NotNull @Length(max = 15) String name,
-        @NotNull @Min(0) Integer order,
         @NotNull MenuPriceType priceType,
         @Min(0) Integer fixedPrice,
         @Min(0) Integer rangeMaxPrice,

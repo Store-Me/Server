@@ -85,6 +85,9 @@ public class Store {
     @Column(name = "store_intro", length = 300)
     private String intro;
 
+    @Column(name = "default_menu_category_id")
+    private Long defaultMenuCategoryId;
+
     public void addStoreImage(StoreImage storeImage){
         if (storeImage.getStore() != this) {
             storeImageList.add(storeImage);

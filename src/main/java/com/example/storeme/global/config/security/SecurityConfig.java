@@ -55,6 +55,7 @@ public class SecurityConfig {
                 .logout(LogoutConfigurer::disable)
 
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/jwt/reissue").permitAll()
                         .requestMatchers("/signup/**", "/login/**").permitAll()
                         .requestMatchers("/verification/**").permitAll()
                         .anyRequest().authenticated())

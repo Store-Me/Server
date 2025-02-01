@@ -18,7 +18,4 @@ public class SaveStoreMenuCategoryRequestDto {
     @NotNull
     @Length(max = 20)
     private String storeMenuCategory;
-
-    @NotNull
-    private Integer storeMenuCategoryOrder;
 }

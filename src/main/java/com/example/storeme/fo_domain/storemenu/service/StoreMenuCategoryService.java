@@ -60,7 +60,7 @@ public class StoreMenuCategoryService {
 
         store.addStoreMenuCategory(StoreMenuCategory.builder()
                 .category(requestDto.getStoreMenuCategory())
-                .order(requestDto.getStoreMenuCategoryOrder())
+                .order(store.getStoreMenuCategoryList().size())
                 .build());
     }
 
