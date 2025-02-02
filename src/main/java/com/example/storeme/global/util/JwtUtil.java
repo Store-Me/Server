@@ -80,9 +80,11 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
 
+            String roleType = claims.get("roleType", String.class);
+
             return JwtUserDto.builder()
                     .userId(claims.get("userId", String.class))
-                    .roleType(claims.get("roleType", RoleType.class))
+                    .roleType(RoleType.valueOf(roleType))
                     .build();
         } catch (Exception exception) {
             log.error("JWT Refresh Token is invalid during the '/reissue' process.");

@@ -51,9 +51,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     throw new JwtAuthenticationException(ErrorStatus._REISSUE_ERROR);
                 }
                 this.reissueAccessTokenAndRefreshToken(response, accessToken.get(), refreshToken.get());
-            } catch (Exception e) {
+            } catch (AuthenticationException e) {
                 log.warn("Access or Refresh Token 재발급 오류 발생", e);
-
+            }
+            finally {
+                filterChain.doFilter(request, response);
             }
         }
         // Case 02) 일반 API 요청인 경우
